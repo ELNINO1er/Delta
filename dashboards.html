@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Dashboards and Reporting for MEL Programs | DELTA Monitoring</title>
+<meta name="description" content="Visualize program performance and generate decision-ready, donor-ready reporting through structured dashboards and reporting workflows.">
+<link rel="canonical" href="https://delta-monitoring.com/features/dashboards/">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+
+:root{
+  /* Brand */
+  --blue:#1B6E8E;--blue-d:#0F445A;--blue-700:#155A75;--blue-800:#0F445A;
+  --lime:#17B26A;--lime-d:#079455;
+  /* Backgrounds */
+  --charcoal:#0F2E40;
+  --navy:#0F445A;
+  --bg:#EFF8FB;--bg2:#D0EBF4;--border:#D0EBF4;
+  /* Text */
+  --ink:#0F2E40;--muted:#535862;
+  /* Fonts */
+  --font-d:'Outfit',sans-serif;
+  --font-b:'Inter',system-ui,sans-serif;
+  /* Misc */
+  --r:16px;--r-sm:8px;
+  --ease:cubic-bezier(.25,.46,.45,.94);
+  --shadow-xs:0 1px 2px rgba(10,13,18,.05);
+  --shadow-sm:0 1px 3px rgba(10,13,18,.10),0 1px 2px rgba(10,13,18,.06);
+  --shadow-md:0 4px 6px rgba(10,13,18,.07),0 2px 4px rgba(10,13,18,.06);
+  --shadow-lg:0 10px 15px rgba(10,13,18,.08),0 4px 6px rgba(10,13,18,.05);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--font-b);color:var(--ink);background:#fff;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+
+/* ── NAV ── */
+#nav{position:fixed;top:0;left:0;right:0;z-index:200;height:66px;padding:0 5vw;display:flex;align-items:center;justify-content:space-between;background:rgba(15,46,64,.96);backdrop-filter:blur(16px);transition:background .3s,box-shadow .3s}
+#nav.light{background:rgba(255,255,255,.96);box-shadow:0 1px 0 var(--border)}
+.nav-logo{display:flex;align-items:center;gap:9px;text-decoration:none}
+.nav-logo-mark{display:flex;align-items:center;justify-content:center;transition:opacity .3s}
+.nav-logo-mark img{height:32px;width:auto}
+#nav.light .nav-logo-mark img{filter:none;opacity:.9}
+.nav-logo-text{display:none}
+.nav-links{display:flex;align-items:center;gap:1.6rem}
+.nav-links>a{font-size:.85rem;font-weight:500;color:rgba(255,255,255,.75);text-decoration:none;transition:color .2s}
+.nav-links>a:hover{color:#fff}
+#nav.light .nav-links>a{color:var(--muted)}
+#nav.light .nav-links>a:hover{color:var(--blue)}
+.nav-dd{position:relative}
+.nav-dd-trigger{display:flex;align-items:center;gap:4px;cursor:pointer;font-size:.85rem;font-weight:500;color:rgba(255,255,255,.75);background:none;border:none;font-family:inherit;transition:color .2s}
+.nav-dd-trigger::after{content:'';width:5px;height:5px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:rotate(45deg) translateY(-2px);display:inline-block;opacity:.55;transition:transform .2s}
+.nav-dd:hover .nav-dd-trigger{color:#fff}
+.nav-dd:hover .nav-dd-trigger::after{transform:rotate(-135deg) translateY(0)}
+#nav.light .nav-dd-trigger{color:var(--muted)}
+#nav.light .nav-dd:hover .nav-dd-trigger{color:var(--blue)}
+.nd-panel{position:absolute;top:calc(100% + 16px);left:-16px;width:280px;background:#fff;border:1px solid var(--border);border-radius:14px;box-shadow:0 20px 60px rgba(15,68,90,.14);padding:.5rem;opacity:0;pointer-events:none;transform:translateY(8px);transition:all .22s var(--ease)}
+.nav-dd:hover .nd-panel{opacity:1;pointer-events:all;transform:translateY(0)}
+.nd-item{display:flex;align-items:center;gap:.7rem;padding:.55rem .8rem;border-radius:9px;text-decoration:none;transition:background .15s}
+.nd-item:hover{background:var(--bg2)}
+.nd-icon{width:32px;height:32px;border-radius:8px;background:var(--bg);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.nd-txt{display:flex;flex-direction:column;gap:1px}
+.nd-name{font-size:.83rem;font-weight:600;color:var(--ink)}
+.nd-tag{font-size:.71rem;color:var(--muted)}
+.nav-cta{display:flex;align-items:center;gap:.7rem}
+.nav-fr{font-size:.8rem;font-weight:600;color:rgba(255,255,255,.82);text-decoration:none;padding:.35rem .8rem;border-radius:99px;border:1px solid rgba(255,255,255,.2);transition:all .2s}
+#nav.light .nav-fr{color:var(--blue);border-color:var(--border)}
+.nav-demo{font-family:var(--font-d);font-size:.85rem;font-weight:700;color:#082D3D;text-decoration:none;padding:.45rem 1.2rem;border-radius:99px;background:var(--lime);transition:all .2s}
+.nav-demo:hover{background:var(--lime-d);color:#082D3D}
+
+/* ── HERO ── */
+#hero{
+  background:var(--charcoal);
+  padding:120px 5vw 0;
+  position:relative;overflow:hidden;
+  min-height:100vh;display:flex;flex-direction:column;
+}
+#hero::before{content:'';position:absolute;inset:0;
+  background-image:linear-gradient(rgba(255,255,255,.015) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.015) 1px,transparent 1px);
+  background-size:56px 56px;pointer-events:none}
+#hero::after{content:'';position:absolute;width:800px;height:400px;border-radius:50%;
+  background:radial-gradient(ellipse,rgba(23,178,106,.07) 0%,transparent 70%);
+  bottom:0;right:-100px;pointer-events:none}
+.hero-top{
+  display:grid;grid-template-columns:1fr 1fr;gap:3vw;align-items:end;
+  margin-bottom:48px;position:relative;z-index:2;
+}
+.breadcrumb{display:flex;align-items:center;gap:.5rem;font-size:.72rem;color:rgba(255,255,255,.40);margin-bottom:1.2rem}
+.breadcrumb a{color:rgba(255,255,255,.50);text-decoration:none}
+.breadcrumb a:hover{color:rgba(255,255,255,.85)}
+.breadcrumb span{opacity:.45}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:8px;background:rgba(23,178,106,.12);border:1px solid rgba(23,178,106,.22);border-radius:99px;padding:.3rem .95rem;font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--lime);margin-bottom:1.3rem;width:fit-content}
+.eyebrow-dot{width:5px;height:5px;border-radius:50%;background:var(--lime);animation:blink 2.2s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+.hero-h1{font-family:var(--font-d);font-weight:800;font-size:clamp(2.4rem,3.8vw,3.7rem);line-height:1.06;letter-spacing:-.04em;color:#fff;margin-bottom:1.2rem}
+.hero-h1 em{font-style:normal;color:var(--lime)}
+.hero-right-text{padding-top:1rem}
+.hero-sub{font-size:.97rem;line-height:1.78;color:rgba(255,255,255,.80);margin-bottom:1.8rem;max-width:400px}
+.hero-sub strong{color:#fff;font-weight:600}
+.hero-actions{display:flex;gap:.85rem;flex-wrap:wrap;align-items:center;margin-bottom:1.6rem}
+.btn-lime{display:inline-flex;align-items:center;gap:.45rem;background:var(--lime);color:#082D3D;padding:.85rem 1.8rem;border-radius:99px;font-family:var(--font-d);font-weight:700;font-size:.92rem;text-decoration:none;box-shadow:0 8px 28px rgba(23,178,106,.28);transition:all .22s}
+.btn-lime:hover{background:var(--lime-d);color:#fff;transform:translateY(-2px)}
+.btn-ghost{display:inline-flex;align-items:center;gap:.45rem;color:rgba(255,255,255,.85);padding:.83rem 1.35rem;border-radius:99px;font-weight:500;font-size:.92rem;border:1px solid rgba(255,255,255,.18);text-decoration:none;transition:all .2s}
+.btn-ghost:hover{color:#fff;border-color:rgba(255,255,255,.45)}
+.hero-tags{display:flex;gap:.5rem;flex-wrap:wrap}
+.htag{font-size:.69rem;font-weight:600;color:rgba(255,255,255,.38);padding:.24rem .72rem;border-radius:99px;border:1px solid rgba(255,255,255,.10)}
+
+/* ── DASHBOARD VISUAL (WOW) ── */
+.dash-visual{
+  position:relative;z-index:2;
+  border-radius:16px 16px 0 0;
+  overflow:hidden;
+  border:1px solid rgba(255,255,255,.10);
+  border-bottom:none;
+  box-shadow:0 -20px 60px rgba(0,0,0,.30);
+  flex:1;
+}
+.dv-chrome{
+  height:36px;background:rgba(255,255,255,.05);
+  border-bottom:1px solid rgba(255,255,255,.07);
+  display:flex;align-items:center;padding:0 16px;gap:8px;
+}
+.dv-dot{width:8px;height:8px;border-radius:50%}
+.dv-tabs{display:flex;gap:0;margin-left:16px}
+.dv-tab{padding:0 14px;height:36px;display:flex;align-items:center;font-size:.72rem;font-weight:600;color:rgba(255,255,255,.35);border-bottom:2px solid transparent;cursor:default}
+.dv-tab.active{color:rgba(255,255,255,.88);border-bottom-color:var(--lime)}
+.dv-body{
+  background:rgba(255,255,255,.03);
+  padding:20px;
+  display:grid;grid-template-columns:2fr 1fr 1fr;gap:16px;
+}
+.dv-panel{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.09);border-radius:12px;overflow:hidden}
+.dvp-head{padding:12px 14px;border-bottom:1px solid rgba(255,255,255,.07);display:flex;align-items:center;justify-content:space-between}
+.dvp-title{font-size:.72rem;font-weight:700;color:rgba(255,255,255,.65)}
+.dvp-actions{display:flex;gap:8px}
+.dvp-icon{font-size:.65rem;font-weight:800;color:rgba(255,255,255,.28);font-family:var(--font-d);letter-spacing:.04em;cursor:default}
+.bar-chart{padding:14px 14px 10px;display:flex;align-items:flex-end;gap:8px;height:160px}
+.bc-bar{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1}
+.bc-bar-fill{width:100%;border-radius:4px 4px 0 0;animation:barUp 1.2s var(--ease) forwards;min-height:4px}
+@keyframes barUp{from{height:0;opacity:0}to{height:var(--h);opacity:1}}
+.bc-bar-label{font-size:.6rem;color:rgba(255,255,255,.45);text-align:center}
+.bc-target-line{
+  position:absolute;left:14px;right:14px;height:1px;
+  background:rgba(23,178,106,.30);border-top:1px dashed rgba(23,178,106,.45);
+}
+.kpi-body{padding:18px 14px;display:flex;flex-direction:column;gap:14px}
+.kpi-item{}
+.kpi-val{font-family:var(--font-d);font-size:2rem;font-weight:800;line-height:1;animation:countUp 1.5s var(--ease) forwards;}
+.kpi-label{font-size:.7rem;color:rgba(255,255,255,.55);margin-top:3px}
+.kpi-trend{font-size:.7rem;font-weight:700;margin-top:3px}
+.kpi-trend.up{color:var(--lime)}
+.kpi-trend.down{color:#F59E0B}
+.pie-body{padding:14px;display:flex;flex-direction:column;align-items:center;gap:10px}
+.pie-svg{width:100px;height:100px}
+.pie-legend{display:flex;flex-direction:column;gap:4px;align-self:flex-start;width:100%}
+.pie-leg-item{display:flex;align-items:center;gap:6px;font-size:.67rem;color:rgba(255,255,255,.80)}
+.pie-leg-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+
+/* ── PROOF ── */
+#proof{padding:22px 5vw;background:#fff;border-bottom:1px solid var(--border)}
+.proof-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;gap:2rem;flex-wrap:wrap}
+.proof-item{font-size:.82rem;font-weight:600;color:var(--navy)}
+.proof-item span{font-weight:400;color:var(--muted)}
+.proof-div{width:1px;height:18px;background:var(--border);flex-shrink:0}
+.proof-right{display:flex;align-items:center;gap:.6rem;margin-left:auto}
+.proof-right-label{font-size:.65rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#a0adb8}
+.compat{font-size:.67rem;font-weight:700;color:#6b8899;padding:.18rem .6rem;border:1px solid var(--border);border-radius:5px;letter-spacing:.04em}
+
+/* ── SHARED ── */
+.eye{display:inline-flex;align-items:center;gap:7px;font-size:.68rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--blue);margin-bottom:.85rem}
+.eye-line{width:14px;height:2px;background:var(--lime);border-radius:1px;display:inline-block}
+h2{font-family:var(--font-d);font-size:clamp(1.8rem,2.9vw,2.55rem);font-weight:800;line-height:1.1;letter-spacing:-.03em;color:var(--ink);margin-bottom:1rem}
+h2 em{font-style:normal;color:var(--blue)}
+.sp{font-size:.93rem;line-height:1.78;color:var(--muted)}
+.fu{opacity:0;transform:translateY(16px);transition:opacity .5s var(--ease),transform .5s var(--ease)}
+.fu.in{opacity:1;transform:translateY(0)}
+
+/* ── REPORT TYPES ── */
+#reports{padding:88px 5vw;background:#fff}
+.rep-inner{max-width:1200px;margin:0 auto}
+.rep-hd{text-align:center;margin-bottom:3rem}
+.rep-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+.rep-card{background:#fff;border:1.5px solid var(--border);border-radius:14px;padding:0;overflow:hidden;transition:transform .22s var(--ease),box-shadow .22s;cursor:default;position:relative}
+.rep-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--navy),var(--lime));opacity:0;transition:opacity .22s}
+.rep-card:hover{transform:translateY(-4px);box-shadow:0 12px 32px rgba(15,68,90,.12)}
+.rep-card:hover::before{opacity:1}
+.rep-preview{height:88px;background:var(--bg);display:flex;align-items:flex-end;justify-content:space-around;padding:8px 12px;gap:6px}
+.mini-bar{border-radius:3px 3px 0 0;width:14px;animation:barUp 1s var(--ease) both;flex-shrink:0}
+.rep-sym{font-size:1.1rem;color:var(--blue);padding:12px 16px 4px;display:block}
+.rep-title{font-family:var(--font-d);font-size:.92rem;font-weight:800;color:var(--ink);padding:0 16px 6px}
+.rep-text{font-size:.8rem;color:var(--muted);line-height:1.6;padding:0 16px 16px}
+
+/* ── BUILDER ── */
+#builder{padding:88px 5vw;background:var(--bg)}
+.build-inner{max-width:1200px;margin:0 auto}
+.build-hd{margin-bottom:2.5rem}
+.build-layout{display:grid;grid-template-columns:240px 1fr;gap:20px;align-items:start}
+.palette{background:#fff;border:1.5px solid var(--border);border-radius:14px;padding:16px}
+.palette-title{font-size:.65rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:12px}
+.palette-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;cursor:pointer;border:1px solid var(--border);background:var(--bg);margin-bottom:5px;transition:all .18s;font-size:.8rem;font-weight:500;color:var(--ink)}
+.palette-item:hover{border-color:var(--blue);background:#fff;color:var(--blue)}
+.palette-item.added{border-color:var(--lime);background:rgba(23,178,106,.06);color:var(--lime-d)}
+.pi-sym{font-size:.9rem;color:var(--blue);font-weight:700}
+.dash-canvas{
+  background:#fff;border:2px dashed var(--border);border-radius:14px;
+  padding:14px;
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  grid-auto-rows:140px;
+  grid-auto-flow:dense;
+  gap:12px;
+}
+.dash-canvas.is-empty{
+  display:flex;align-items:center;justify-content:center;
+  min-height:440px;padding:24px;
+}
+.dc-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;
+  color:var(--muted);font-size:.82rem;text-align:center;gap:10px;max-width:280px;
+}
+.dc-empty-sym{font-size:2.4rem;color:var(--border);line-height:1}
+/* Bento panel sizes */
+.dc-panel{
+  border:1.5px solid var(--border);border-radius:10px;overflow:hidden;
+  display:flex;flex-direction:column;background:#fff;
+  animation:panelIn .36s var(--ease);
+  box-shadow:0 1px 2px rgba(15,46,64,.04);
+}
+.dc-panel.size-kpi{grid-column:span 1;grid-row:span 1}
+.dc-panel.size-pie{grid-column:span 1;grid-row:span 1}
+.dc-panel.size-bar{grid-column:span 2;grid-row:span 1}
+.dc-panel.size-table{grid-column:span 2;grid-row:span 2}
+@keyframes panelIn{
+  from{opacity:0;transform:scale(.94) translateY(4px)}
+  to{opacity:1;transform:scale(1) translateY(0)}
+}
+.dc-panel-head{
+  padding:7px 11px;font-size:.7rem;font-weight:700;
+  display:flex;align-items:center;gap:7px;
+  background:var(--bg);border-bottom:1px solid var(--border);
+  color:var(--ink);flex-shrink:0;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.dc-panel-head-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.dc-panel-head-label{overflow:hidden;text-overflow:ellipsis}
+.dc-panel-body{
+  padding:10px 12px;background:#fff;
+  flex:1;display:flex;align-items:center;justify-content:center;
+  overflow:hidden;
+}
+.mini-bars{display:flex;align-items:flex-end;gap:5px;height:100%;width:100%;max-height:82px}
+.mb{border-radius:3px 3px 0 0;flex:1;min-width:10px}
+.mini-kpi{font-family:var(--font-d);font-size:1.9rem;font-weight:800;line-height:1;color:var(--blue);text-align:center}
+.mini-kpi-sub{font-size:.66rem;color:var(--muted);margin-top:4px;text-align:center;line-height:1.3}
+.mini-pie-svg{width:62px;height:62px}
+.dc-panel-body>div{width:100%}
+/* Mini table in builder */
+.mini-table-row{display:flex;justify-content:space-between;font-size:.72rem;padding:4px 0;border-bottom:1px solid var(--border)}
+.mini-table-row:last-child{border-bottom:none}
+.mini-table-row .mtr-label{color:var(--muted)}
+.mini-table-row .mtr-val{font-weight:600;color:var(--ink)}
+.mini-table-row .mtr-bar{flex:1;margin:0 10px;background:var(--bg2);border-radius:3px;height:6px;align-self:center;overflow:hidden}
+.mini-table-row .mtr-fill{height:100%;background:var(--blue);border-radius:3px}
+
+/* ── SHARING — dark section ── */
+#sharing{padding:88px 5vw;background:var(--charcoal);position:relative;overflow:hidden}
+#sharing::before{content:'';position:absolute;inset:0;
+  background-image:linear-gradient(rgba(255,255,255,.012) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.012) 1px,transparent 1px);
+  background-size:48px 48px;pointer-events:none}
+.sharing-inner{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1fr 1.2fr;gap:5vw;align-items:start;position:relative;z-index:1}
+.sharing-left h2{color:#fff}
+.sharing-left p{font-size:.93rem;line-height:1.78;color:rgba(255,255,255,.72);margin-top:.5rem}
+.sharing-right{display:flex;flex-direction:column;gap:16px}
+.share-card{display:flex;align-items:flex-start;gap:16px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.09);border-radius:12px;padding:18px 20px;transition:background .18s}
+.share-card:hover{background:rgba(255,255,255,.09)}
+.sc-sym{font-size:1.15rem;color:var(--lime);width:24px;flex-shrink:0;margin-top:1px}
+.sc-title{font-family:var(--font-d);font-size:.9rem;font-weight:700;color:#fff;margin-bottom:.3rem}
+.sc-text{font-size:.8rem;color:rgba(255,255,255,.65);line-height:1.6}
+
+/* ── USE CASES ── */
+#usecases{padding:88px 5vw;background:#fff}
+.uc-inner{max-width:1200px;margin:0 auto}
+.uc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:2.5rem}
+.uc-card{background:var(--bg);border:1.5px solid var(--border);border-radius:14px;padding:24px}
+.uc-ab{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:10px;background:var(--blue-d);color:#fff;font-family:var(--font-d);font-size:.62rem;font-weight:800;letter-spacing:.04em;margin-bottom:.85rem}
+.uc-title{font-family:var(--font-d);font-size:.97rem;font-weight:800;color:var(--ink);margin-bottom:.32rem}
+.uc-text{font-size:.82rem;color:var(--muted);line-height:1.65}
+
+/* ── FAQ ── */
+#faq{padding:72px 5vw;background:var(--bg)}
+.faq-inner{max-width:780px;margin:0 auto}
+.faq-hd{text-align:center;margin-bottom:2.5rem}
+.faq-item{border:1.5px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:10px;background:#fff}
+.faq-item.open .faq-a{display:block}
+.faq-item.open .faq-ic{transform:rotate(45deg)}
+.faq-q{width:100%;display:flex;justify-content:space-between;align-items:center;padding:.9rem 1.2rem;background:none;border:none;cursor:pointer;text-align:left;font-size:.9rem;font-weight:600;color:var(--ink);font-family:var(--font-b);transition:background .17s}
+.faq-q:hover{background:var(--bg)}
+.faq-ic{font-size:1.1rem;color:var(--blue);flex-shrink:0;transition:transform .22s;margin-left:.5rem}
+.faq-a{display:none;padding:.1rem 1.2rem 1rem;font-size:.85rem;color:var(--muted);line-height:1.72}
+
+/* ── FEATURE NAV ── */
+#featnav{padding:48px 5vw;background:#fff;border-top:1px solid var(--border)}
+.fn-inner{max-width:1200px;margin:0 auto}
+.fn-label{font-size:.65rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:1rem}
+.fn-grid{display:flex;gap:12px;flex-wrap:wrap}
+.fn-card{display:flex;flex-direction:column;align-items:center;text-align:center;gap:5px;background:var(--bg);border:1.5px solid var(--border);border-radius:12px;padding:14px 18px;text-decoration:none;min-width:100px;transition:all .18s}
+.fn-card:hover{border-color:var(--blue);background:#fff;transform:translateY(-2px)}
+.fn-ab{font-family:var(--font-d);font-size:.58rem;font-weight:800;color:var(--blue);letter-spacing:.06em;background:rgba(27,110,142,.08);padding:.18rem .5rem;border-radius:4px;margin-bottom:2px}
+.fn-name{font-size:.78rem;font-weight:600;color:var(--ink)}
+.fn-sub{font-size:.68rem;color:var(--muted)}
+
+/* ── CTA ── */
+#cta{padding:88px 5vw;background:var(--navy);position:relative;overflow:hidden;border-top:3px solid var(--lime)}
+#cta::before{content:'';position:absolute;inset:0;
+  background-image:linear-gradient(rgba(255,255,255,.012) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.012) 1px,transparent 1px);
+  background-size:48px 48px;pointer-events:none}
+.cta-inner{max-width:680px;margin:0 auto;text-align:center;position:relative;z-index:1}
+.cta-eye{font-size:.68rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--lime);margin-bottom:.85rem;display:flex;align-items:center;justify-content:center;gap:7px}
+#cta h2{color:#fff}
+#cta h2 em{color:var(--lime)}
+.cta-sub{font-size:.93rem;line-height:1.78;color:rgba(255,255,255,.72);margin:.85rem 0 2rem}
+.cta-actions{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap}
+.btn-white{display:inline-flex;align-items:center;gap:.45rem;background:#fff;color:var(--navy);padding:.88rem 1.85rem;border-radius:99px;font-family:var(--font-d);font-size:.92rem;font-weight:700;text-decoration:none;box-shadow:0 8px 24px rgba(0,0,0,.18);transition:all .22s}
+.btn-white:hover{background:var(--bg);transform:translateY(-2px)}
+.btn-ol{display:inline-flex;align-items:center;gap:.45rem;color:rgba(255,255,255,.75);padding:.86rem 1.5rem;border-radius:99px;font-size:.88rem;font-weight:500;border:1px solid rgba(255,255,255,.2);text-decoration:none;transition:all .2s}
+.btn-ol:hover{border-color:rgba(255,255,255,.75);color:#fff}
+
+/* ── FOOTER ── */
+footer{background:#0F1C24;padding:48px 5vw 24px}
+.footer-inner{max-width:1200px;margin:0 auto}
+.footer-top{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:2.5rem;margin-bottom:32px}
+.footer-brand-text{font-size:.8rem;line-height:1.7;color:rgba(255,255,255,.36);margin-top:.65rem;max-width:210px}
+.footer-col-title{font-size:.65rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.30);margin-bottom:.85rem}
+.footer-links{list-style:none;display:flex;flex-direction:column;gap:.42rem}
+.footer-links a{font-size:.8rem;color:rgba(255,255,255,.42);text-decoration:none;transition:color .18s}
+.footer-links a:hover{color:#fff}
+.footer-bottom{border-top:1px solid rgba(255,255,255,.07);padding-top:18px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.75rem}
+.footer-legal{font-size:.73rem;color:rgba(255,255,255,.26)}
+.footer-lang{display:flex;gap:.55rem}
+.footer-lang a{font-size:.73rem;color:rgba(255,255,255,.32);text-decoration:none;padding:.2rem .52rem;border-radius:5px;border:1px solid rgba(255,255,255,.12);transition:all .18s}
+.footer-lang a:hover,.footer-lang a.active{color:#fff;border-color:rgba(255,255,255,.35)}
+
+@keyframes countUp{from{opacity:0}to{opacity:1}}
+@keyframes sliceIn{from{opacity:0;stroke-dashoffset:100}to{opacity:1}}
+
+@media(max-width:960px){
+  .hero-top{grid-template-columns:1fr}
+  .dv-body{grid-template-columns:1fr}
+  .rep-grid{grid-template-columns:1fr 1fr}
+  .build-layout{grid-template-columns:1fr}
+  .sharing-inner,.uc-grid{grid-template-columns:1fr}
+  .fn-grid{grid-template-columns:repeat(2,1fr)}
+  .footer-top{grid-template-columns:1fr 1fr}
+  .nav-links{display:none}
+}
+
+</style>
+</head>
+<body>
+
+<nav id="nav">
+  <a href="index.html" class="nav-logo">
+    <div class="nav-logo-mark" style="background:transparent;padding:0;width:auto;height:auto"><img src="data:image/png;base64,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" alt="Delta Monitoring" style="height:30px;width:auto;display:block"></div>
+  </a>
+  <div class="nav-links">
+    <div class="nav-dd">
+      <button class="nav-dd-trigger">Features</button>
+      <div class="nd-panel"><a href="portfolio.html" class="nd-item"><span class="nd-icon"><span style="font-size:.6rem;font-weight:800;color:var(--blue);font-family:var(--font-d)">PORT</span></span><span class="nd-txt"><span class="nd-name">Portfolio Management</span><span class="nd-tag">Strategic oversight</span></span></a><a href="activities.html" class="nd-item"><span class="nd-icon"><span style="font-size:.6rem;font-weight:800;color:var(--blue);font-family:var(--font-d)">ACT</span></span><span class="nd-txt"><span class="nd-name">Activity Management</span><span class="nd-tag">Implementation tracking</span></span></a><a href="indicators.html" class="nd-item"><span class="nd-icon"><span style="font-size:.6rem;font-weight:800;color:var(--blue);font-family:var(--font-d)">IND</span></span><span class="nd-txt"><span class="nd-name">Indicators & Results</span><span class="nd-tag">Results frameworks</span></span></a><a href="data-collection.html" class="nd-item"><span class="nd-icon"><span style="font-size:.6rem;font-weight:800;color:var(--blue);font-family:var(--font-d)">DATA</span></span><span class="nd-txt"><span class="nd-name">Data Collection</span><span class="nd-tag">Field-first</span></span></a><a href="dashboards.html" class="nd-item" style="background:rgba(0,102,153,.06)"><span class="nd-icon"><span style="font-size:.6rem;font-weight:800;color:var(--blue);font-family:var(--font-d)">DASH</span></span><span class="nd-txt"><span class="nd-name">Dashboards & Reporting</span><span class="nd-tag">Decision-ready insights</span></span></a><a href="gis.html" class="nd-item"><span class="nd-icon"><span style="font-size:.6rem;font-weight:800;color:var(--blue);font-family:var(--font-d)">GIS</span></span><span class="nd-txt"><span class="nd-name">Geospatial (GIS)</span><span class="nd-tag">Geographic intelligence</span></span></a></div>
+    </div>
+    <a href="#">Solutions</a>
+    <a href="index.html#compare">Why DELTA</a>
+    <a href="#">Resources</a>
+    <a href="#">About</a>
+  </div>
+  <div class="nav-cta">
+    <a href="#" class="nav-fr">FR</a>
+    <a href="#" class="nav-demo">Book a Demo</a>
+  </div>
+</nav>
+
+<!-- HERO — charcoal analytics aesthetic, dashboard dominates -->
+<section id="hero">
+  <div class="hero-top">
+    <div>
+      <div class="breadcrumb">
+        <a href="index.html">Home</a><span>›</span>
+        <a href="index.html#features">Features</a><span>›</span>
+        <span style="color:rgba(255,255,255,.7)">Dashboards &amp; Reporting</span>
+      </div>
+      <div class="hero-eyebrow"><span class="eyebrow-dot"></span>Dashboards &amp; Reporting</div>
+      <h1 class="hero-h1">
+        Turn program data into<br><em>reporting-ready</em><br>insight.
+      </h1>
+    </div>
+    <div class="hero-right-text">
+      <p class="hero-sub">
+        DELTA helps organizations visualize performance and generate structured dashboards from a single source of truth. <strong>Share live with donors.</strong> Export to Word, Excel, or PDF in one click.
+      </p>
+      <div class="hero-actions">
+        <a href="#builder" class="btn-lime">Build a dashboard →</a>
+        <a href="#" class="btn-ghost">Request a Demo</a>
+      </div>
+      <div class="hero-tags">
+        <span class="htag">Table · Bar · Pie · Widget</span>
+        <span class="htag">Portfolio-level</span>
+        <span class="htag">Shareable live link</span>
+        <span class="htag">Export Word · Excel · PDF</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- THE WOW: animated dashboard panel — CSS @keyframes only -->
+  <div class="dash-visual">
+    <div class="dv-chrome">
+      <div class="dv-dot" style="background:#FF5F56"></div>
+      <div class="dv-dot" style="background:#FEBC2E"></div>
+      <div class="dv-dot" style="background:#27C840"></div>
+      <div class="dv-tabs">
+        <div class="dv-tab active">WatSan Dashboard</div>
+        <div class="dv-tab">Progress Report</div>
+        <div class="dv-tab">Activities Dashboard</div>
+        <div class="dv-tab">Indicator Dashboard</div>
+      </div>
+    </div>
+    <div class="dv-body">
+      <!-- Panel 1: Bar chart — indicator performance by location -->
+      <div class="dv-panel">
+        <div class="dvp-head">
+          <span class="dvp-title">% of Targets by Location · O1A Water Access</span>
+          <div class="dvp-actions">
+            <span class="dvp-icon">XLS</span>
+            <span class="dvp-icon">PDF</span>
+          </div>
+        </div>
+        <div class="bar-chart" style="position:relative">
+          <div class="bc-bar">
+            <div class="bc-bar-fill" style="--h:88px;background:#4DA8D4;animation-delay:.1s"></div>
+            <div class="bc-bar-label">Agadez</div>
+          </div>
+          <div class="bc-bar">
+            <div class="bc-bar-fill" style="--h:112px;background:var(--lime);animation-delay:.2s"></div>
+            <div class="bc-bar-label">Bungoma</div>
+          </div>
+          <div class="bc-bar">
+            <div class="bc-bar-fill" style="--h:68px;background:#F59E0B;animation-delay:.3s"></div>
+            <div class="bc-bar-label">Kidal</div>
+          </div>
+          <div class="bc-bar">
+            <div class="bc-bar-fill" style="--h:100px;background:var(--lime);animation-delay:.4s"></div>
+            <div class="bc-bar-label">Isiolo</div>
+          </div>
+          <div class="bc-bar">
+            <div class="bc-bar-fill" style="--h:92px;background:#4DA8D4;animation-delay:.5s"></div>
+            <div class="bc-bar-label">Moyale</div>
+          </div>
+          <div class="bc-bar">
+            <div class="bc-bar-fill" style="--h:120px;background:var(--lime);animation-delay:.6s"></div>
+            <div class="bc-bar-label">Kwale</div>
+          </div>
+          <!-- Target line -->
+          <div class="bc-target-line" style="bottom:30px"></div>
+        </div>
+      </div>
+      <!-- Panel 2: KPI widgets -->
+      <div class="dv-panel">
+        <div class="dvp-head">
+          <span class="dvp-title">Program KPIs</span>
+          <div class="dvp-actions"><span class="dvp-icon">IMG</span></div>
+        </div>
+        <div class="kpi-body">
+          <div class="kpi-item">
+            <div class="kpi-val" style="color:var(--lime);font-family:var(--font-d);font-size:2rem;font-weight:800;animation:countUp 1.8s var(--ease) forwards" id="kv1">0%</div>
+            <div class="kpi-label">Overall target achievement</div>
+            <div class="kpi-trend up">↑ +8% vs last period</div>
+          </div>
+          <div class="kpi-item">
+            <div class="kpi-val" style="color:#4DA8D4;font-family:var(--font-d);font-size:2rem;font-weight:800;animation:countUp 1.8s var(--ease) .3s forwards" id="kv2">0</div>
+            <div class="kpi-label">Communities reached</div>
+            <div class="kpi-trend up">↑ On track</div>
+          </div>
+          <div class="kpi-item">
+            <div class="kpi-val" style="color:#F59E0B;font-family:var(--font-d);font-size:2rem;font-weight:800" id="kv3">52%</div>
+            <div class="kpi-label">Rehabilitation progress</div>
+            <div class="kpi-trend down">↓ Needs attention</div>
+          </div>
+        </div>
+      </div>
+      <!-- Panel 3: Pie chart -->
+      <div class="dv-panel">
+        <div class="dvp-head">
+          <span class="dvp-title">Budget by Category</span>
+          <div class="dvp-actions"><span class="dvp-icon">PDF</span></div>
+        </div>
+        <div class="pie-body">
+          <!-- SVG pie chart — CSS stroke-dashoffset animation -->
+          <svg class="pie-svg" viewBox="0 0 36 36">
+            <circle cx="18" cy="18" r="15.9" fill="rgba(255,255,255,.04)" stroke="rgba(255,255,255,.05)" stroke-width="1"/>
+            <!-- Slice 1: 45% — lime -->
+            <circle cx="18" cy="18" r="15.9" fill="none" stroke="var(--lime)" stroke-width="6"
+              stroke-dasharray="45 55" stroke-dashoffset="25"
+              style="animation:sliceIn .8s var(--ease) .2s both"
+              transform="rotate(-90 18 18)"/>
+            <!-- Slice 2: 30% — blue -->
+            <circle cx="18" cy="18" r="15.9" fill="none" stroke="#4DA8D4" stroke-width="6"
+              stroke-dasharray="30 70" stroke-dashoffset="-20"
+              style="animation:sliceIn .8s var(--ease) .5s both"
+              transform="rotate(-90 18 18)"/>
+            <!-- Slice 3: 25% — amber -->
+            <circle cx="18" cy="18" r="15.9" fill="none" stroke="#F59E0B" stroke-width="6"
+              stroke-dasharray="25 75" stroke-dashoffset="-50"
+              style="animation:sliceIn .8s var(--ease) .8s both"
+              transform="rotate(-90 18 18)"/>
+          </svg>
+          <div class="pie-legend">
+            <div class="pie-leg-item"><span class="pie-leg-dot" style="background:var(--lime)"></span>Infrastructure 45%</div>
+            <div class="pie-leg-item"><span class="pie-leg-dot" style="background:#4DA8D4"></span>Capacity building 30%</div>
+            <div class="pie-leg-item"><span class="pie-leg-dot" style="background:#F59E0B"></span>Operations 25%</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- PROOF -->
+<div id="proof">
+  <div class="proof-inner">
+    <div class="proof-item">Table · Bar · Pie · Widget <span>report types</span></div>
+    <div class="proof-div"></div>
+    <div class="proof-item">Project &amp; portfolio <span>dashboard levels</span></div>
+    <div class="proof-div"></div>
+    <div class="proof-item">Drag &amp; drop <span>panel builder</span></div>
+    <div class="proof-div"></div>
+    <div class="proof-item">Shareable live <span>without credentials</span></div>
+    <div class="proof-right">
+      <span class="proof-right-label">Export to</span>
+      <span class="compat">Word</span><span class="compat">Excel</span>
+      <span class="compat">PDF</span><span class="compat">PNG</span>
+    </div>
+  </div>
+</div>
+
+<!-- REPORT TYPES — 4 cards with mini chart previews -->
+<section id="reports">
+  <div class="rep-inner">
+    <div class="rep-hd fu">
+      <div class="eye" style="justify-content:center"><span class="eye-line"></span>4 report types</div>
+      <h2>Build any report. <em>Combine them into dashboards.</em></h2>
+    </div>
+    <div class="rep-grid fu">
+      <!-- Table -->
+      <div class="rep-card">
+        <div class="rep-preview" style="align-items:stretch;padding:8px">
+          <div style="background:#fff;border-radius:5px;width:100%;display:flex;flex-direction:column;gap:4px;justify-content:center;padding:6px">
+            <div style="height:6px;background:var(--border);border-radius:3px"></div>
+            <div style="height:6px;background:var(--bg2);border-radius:3px;width:80%"></div>
+            <div style="height:6px;background:var(--border);border-radius:3px;width:90%"></div>
+            <div style="height:6px;background:var(--bg2);border-radius:3px;width:70%"></div>
+          </div>
+        </div>
+        <div class="rep-sym">≡</div>
+        <div class="rep-title">Table</div>
+        <div class="rep-text">Structured data by logframe, location, period, or financing source — with filters and Excel/PDF export.</div>
+      </div>
+      <!-- Bar chart -->
+      <div class="rep-card">
+        <div class="rep-preview">
+          <div class="mini-bar" style="--h:30px;height:30px;background:#4DA8D4;animation-delay:.1s"></div>
+          <div class="mini-bar" style="--h:50px;height:50px;background:var(--lime);animation-delay:.2s"></div>
+          <div class="mini-bar" style="--h:38px;height:38px;background:#F59E0B;animation-delay:.3s"></div>
+          <div class="mini-bar" style="--h:55px;height:55px;background:var(--lime);animation-delay:.4s"></div>
+          <div class="mini-bar" style="--h:42px;height:42px;background:#4DA8D4;animation-delay:.5s"></div>
+        </div>
+        <div class="rep-sym">⊟</div>
+        <div class="rep-title">Bar / Combined chart</div>
+        <div class="rep-text">Actuals vs targets by location or period — with combined chart types and exportable to PNG or PDF.</div>
+      </div>
+      <!-- Pie -->
+      <div class="rep-card">
+        <div class="rep-preview" style="justify-content:center;align-items:center">
+          <svg width="60" height="60" viewBox="0 0 36 36">
+            <circle cx="18" cy="18" r="15.9" fill="transparent" stroke="var(--lime)" stroke-width="8" stroke-dasharray="45 55" transform="rotate(-90 18 18)"/>
+            <circle cx="18" cy="18" r="15.9" fill="transparent" stroke="#4DA8D4" stroke-width="8" stroke-dasharray="30 70" stroke-dashoffset="-45" transform="rotate(-90 18 18)"/>
+            <circle cx="18" cy="18" r="15.9" fill="transparent" stroke="#F59E0B" stroke-width="8" stroke-dasharray="25 75" stroke-dashoffset="-75" transform="rotate(-90 18 18)"/>
+          </svg>
+        </div>
+        <div class="rep-sym">◔</div>
+        <div class="rep-title">Pie chart</div>
+        <div class="rep-text">Distribution by category — budget, financing source, activity type. Filter-aware and shareable.</div>
+      </div>
+      <!-- Widget -->
+      <div class="rep-card">
+        <div class="rep-preview" style="justify-content:center;align-items:center">
+          <div style="text-align:center">
+            <div style="font-family:var(--font-d);font-size:2rem;font-weight:800;color:var(--blue);line-height:1">66%</div>
+            <div style="font-size:.65rem;color:var(--muted);margin-top:4px">Overall progress</div>
+          </div>
+        </div>
+        <div class="rep-sym">◈</div>
+        <div class="rep-title">Widget</div>
+        <div class="rep-text">A single key data point — total disbursed, % target, beneficiary count — displayed as a prominent KPI tile.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DASHBOARD BUILDER — interactive -->
+<section id="builder">
+  <div class="build-inner">
+    <div class="build-hd fu">
+      <div class="eye"><span class="eye-line"></span>Dashboard builder</div>
+      <h2>Assemble reports into dashboards. <em>Drag, drop, publish.</em></h2>
+      <p class="sp" style="margin-top:.4rem;max-width:500px">Click a report type to add it to your dashboard. Reports from indicators, activities, and field forms all combine in one view.</p>
+    </div>
+    <div class="build-layout fu">
+      <div class="palette">
+        <div class="palette-title">Available reports</div>
+        <div class="palette-item" onclick="addPanel(this,'bar')">
+          <span class="pi-sym">⊟</span>Bar chart · % Targets
+        </div>
+        <div class="palette-item" onclick="addPanel(this,'kpi')">
+          <span class="pi-sym">◈</span>KPI · Overall progress
+        </div>
+        <div class="palette-item" onclick="addPanel(this,'pie')">
+          <span class="pi-sym">◔</span>Pie · Budget split
+        </div>
+        <div class="palette-item" onclick="addPanel(this,'table')">
+          <span class="pi-sym">≡</span>Table · Actuals vs Targets
+        </div>
+        <div class="palette-item" onclick="addPanel(this,'bar2')">
+          <span class="pi-sym">⊟</span>Bar · Committee training
+        </div>
+        <div class="palette-item" onclick="addPanel(this,'kpi2')">
+          <span class="pi-sym">◈</span>KPI · Water points
+        </div>
+        <div class="palette-item" style="margin-top:10px;color:var(--muted);border:1px solid var(--border)" onclick="clearDash()">
+          <span class="pi-sym" style="color:var(--muted)">×</span>Clear canvas
+        </div>
+      </div>
+      <div class="dash-canvas is-empty" id="dash-canvas">
+        <div class="dc-empty" id="dc-empty">
+          <div class="dc-empty-sym">⊞</div>
+          <p>Click a report on the left to add it to your dashboard.<br>Panels assemble into a live bento layout.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SHARING — dark, side-by-side layout -->
+<section id="sharing">
+  <div class="sharing-inner">
+    <div class="sharing-left fu">
+      <div class="eye"><span class="eye-line"></span>Sharing &amp; export</div>
+      <h2>Built for MEL reporting,<br><em>not generic analytics alone.</em></h2>
+      <p>DELTA is designed for the reporting realities of development programs — where indicators, activities, field data, and portfolio oversight all need to come together in one coherent view.</p>
+    </div>
+    <div class="sharing-right fu">
+      <div class="share-card">
+        <span class="sc-sym">⌁</span>
+        <div><div class="sc-title">Shareable live link</div><div class="sc-text">Share any dashboard publicly — recipients need no system credentials. Perfect for donor updates and steering committee meetings.</div></div>
+      </div>
+      <div class="share-card">
+        <span class="sc-sym">⊞</span>
+        <div><div class="sc-title">Published to project homepage</div><div class="sc-text">Star a dashboard to pin it as a tab on the project's main page. Every team member sees the same live view on login.</div></div>
+      </div>
+      <div class="share-card">
+        <span class="sc-sym">↓</span>
+        <div><div class="sc-title">Export Word · Excel · PDF · PNG</div><div class="sc-text">Export any individual report panel or full dashboard — formatted and ready for your quarterly donor narrative.</div></div>
+      </div>
+      <div class="share-card">
+        <span class="sc-sym">⊕</span>
+        <div><div class="sc-title">Portfolio-level dashboards</div><div class="sc-text">Combine reports from across all projects in one portfolio dashboard — for headquarters and multi-country programs.</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- USE CASES -->
+<section id="usecases">
+  <div class="uc-inner">
+    <div class="fu">
+      <div class="eye"><span class="eye-line"></span>Use cases</div>
+      <h2>From field data<br><em>to donor-ready report.</em></h2>
+    </div>
+    <div class="uc-grid">
+      <div class="uc-card fu">
+        <div class="uc-ab">DONOR</div>
+        <div class="uc-title">Donor reporting</div>
+        <p class="uc-text">Build a dashboard for each donor with their indicators, export it to Word with one click, and share a live link for real-time visibility between reporting cycles.</p>
+      </div>
+      <div class="uc-card fu">
+        <div class="uc-ab">HQ</div>
+        <div class="uc-title">Headquarters oversight</div>
+        <p class="uc-text">Portfolio-level dashboards consolidate performance across all projects — no more collecting Excel files from field offices and rebuilding the numbers manually.</p>
+      </div>
+      <div class="uc-card fu">
+        <div class="uc-ab">MEL</div>
+        <div class="uc-title">MEL team monitoring</div>
+        <p class="uc-text">Publish indicator and activity dashboards to the project homepage so every team member starts the week with the same live performance view, without emailing reports.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq">
+  <div class="faq-inner">
+    <div class="faq-hd fu">
+      <div class="eye" style="justify-content:center"><span class="eye-line"></span>FAQ</div>
+      <h2>Common questions</h2>
+    </div>
+    <div class="faq-item fu"><button class="faq-q">What types of reports can I include in a dashboard?<span class="faq-ic">+</span></button><div class="faq-a"><p>Four types: Table (structured data by logframe, location, or period), Bar/Combined chart (actuals vs targets by location or period), Pie chart (distribution by category), and Widget (a single key data point). Reports can come from activities, indicators, or data collection forms — and can all appear in the same dashboard.</p></div></div>
+    <div class="faq-item fu"><button class="faq-q">Can I share dashboards with donors who don't have a DELTA account?<span class="faq-ic">+</span></button><div class="faq-a"><p>Yes. Any dashboard can be shared via a public link — recipients access it without system credentials. You can also export individual panels or the full dashboard to Word, Excel, PDF, or PNG for formal donor submission.</p></div></div>
+    <div class="faq-item fu"><button class="faq-q">What is a portfolio-level dashboard?<span class="faq-ic">+</span></button><div class="faq-a"><p>Portfolio dashboards combine reports from across all projects in your portfolio. They can include any report marked as "Portfolio" when created at project level — giving headquarters a consolidated view across all programs without manually aggregating data.</p></div></div>
+    <div class="faq-item fu"><button class="faq-q">Can dashboards update automatically?<span class="faq-ic">+</span></button><div class="faq-a"><p>Yes. Dashboards in DELTA always reflect the latest data — as new field submissions are validated, as indicator actuals are updated, or as activities are tracked. There's no manual refresh required. Live links shared with donors always show current data.</p></div></div>
+  </div>
+</section>
+
+<!-- FEAT NAV -->
+<section id="featnav">
+  <div class="fn-inner">
+    <div class="fn-label">Explore other features</div>
+    <div class="fn-grid">
+      <a href="portfolio.html" class="fn-card"><div class="fn-ab">PORT</div><div class="fn-name">Portfolio Management</div><div class="fn-sub">Strategic overview</div></a>
+      <a href="activities.html" class="fn-card"><div class="fn-ab">ACT</div><div class="fn-name">Activity Management</div><div class="fn-sub">Implementation tracking</div></a>
+      <a href="indicators.html" class="fn-card"><div class="fn-ab">IND</div><div class="fn-name">Indicators &amp; Results</div><div class="fn-sub">Logframes &amp; KPIs</div></a>
+      <a href="data-collection.html" class="fn-card"><div class="fn-ab">DATA</div><div class="fn-name">Data Collection</div><div class="fn-sub">Field-first</div></a>
+      <a href="gis.html" class="fn-card"><div class="fn-ab">GIS</div><div class="fn-name">Geospatial (GIS)</div><div class="fn-sub">Map your impact</div></a>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section id="cta">
+  <div class="cta-inner fu">
+    <div class="cta-eye"><span style="width:14px;height:2px;background:var(--lime);display:inline-block;border-radius:1px"></span>See it in action</div>
+    <h2>See how DELTA<br><em>simplifies reporting.</em></h2>
+    <p class="cta-sub">Book a demo and we'll walk through your reporting workflow — dashboards, donor exports, and portfolio-level visibility from a single source of truth.</p>
+    <div class="cta-actions">
+      <a href="#" class="btn-white">Request a Demo →</a>
+      <a href="index.html#features" class="btn-ol">← All Features</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div>
+        <a href="index.html" class="nav-logo"><div class="nav-logo-mark" style="background:transparent;padding:0;width:auto;height:auto"><img src="data:image/png;base64,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" alt="Delta Monitoring" style="height:32px;width:auto;display:block"></div></a>
+        <p class="footer-brand-text">The integrated M&amp;E platform for NGOs, governments, and development agencies. 30+ countries · 5 continents.</p>
+      </div>
+      <div><div class="footer-col-title">Features</div><ul class="footer-links">
+        <li><a href="portfolio.html">Portfolio Management</a></li>
+        <li><a href="activities.html">Activity Management</a></li>
+        <li><a href="indicators.html">Indicators &amp; Results</a></li>
+        <li><a href="data-collection.html">Data Collection</a></li>
+        <li><a href="dashboards.html">Dashboards &amp; Reporting</a></li>
+        <li><a href="gis.html">Geospatial (GIS)</a></li>
+      </ul></div>
+      <div><div class="footer-col-title">Solutions</div><ul class="footer-links">
+        <li><a href="#">NGOs</a></li>
+        <li><a href="#">Governments</a></li>
+        <li><a href="#">PMUs</a></li>
+        <li><a href="#">Donors</a></li>
+      </ul></div>
+      <div><div class="footer-col-title">Company</div><ul class="footer-links">
+        <li><a href="#">About DELTA</a></li>
+        <li><a href="#">Resources</a></li>
+        <li><a href="#">Book a Demo</a></li>
+        <li><a href="#">Contact</a></li>
+        <li><a href="#">Français</a></li>
+      </ul></div>
+    </div>
+    <div class="footer-bottom">
+      <span class="footer-legal">© 2026 DeltaGIS · DELTA Monitoring · All rights reserved · GDPR Compliant</span>
+      <div class="footer-lang"><a href="index.html" class="active">EN</a><a href="#">FR</a><a href="#">AR</a></div>
+    </div>
+  </div>
+</footer>
+
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","name":"DELTA Dashboards & Reporting","url":"https://delta-monitoring.com/features/dashboards/","breadcrumb":{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://delta-monitoring.com"},{"@type":"ListItem","position":2,"name":"Features","item":"https://delta-monitoring.com/features/"},{"@type":"ListItem","position":3,"name":"Dashboards & Reporting","item":"https://delta-monitoring.com/features/dashboards/"}]}}
+</script>
+
+<script>
+window.addEventListener('scroll',()=>{document.getElementById('nav').classList.toggle('light',window.scrollY>60);},{passive:true});
+const obs=new IntersectionObserver(e=>e.forEach(x=>{if(x.isIntersecting){x.target.classList.add('in');obs.unobserve(x.target);}}),{threshold:.06,rootMargin:'0px 0px -32px 0px'});
+document.querySelectorAll('.fu').forEach(el=>obs.observe(el));
+
+/* KPI counters */
+(function(){
+  const kv1=document.getElementById('kv1');
+  const kv2=document.getElementById('kv2');
+  if(!kv1||!kv2)return;
+  let p1=0,p2=0;
+  const iv=setInterval(()=>{
+    p1=Math.min(p1+2,66);p2=Math.min(p2+2,51);
+    kv1.textContent=p1+'%';kv2.textContent=p2;
+    if(p1>=66&&p2>=51)clearInterval(iv);
+  },30);
+})();
+
+/* Dashboard builder — bento layout */
+const panels={
+  bar:{
+    title:'% Targets by Location',size:'bar',dotColor:'#4DA8D4',
+    content:'<div class="mini-bars"><div class="mb" style="height:52%;background:#4DA8D4"></div><div class="mb" style="height:78%;background:var(--lime)"></div><div class="mb" style="height:42%;background:#F59E0B"></div><div class="mb" style="height:65%;background:var(--lime)"></div><div class="mb" style="height:58%;background:#4DA8D4"></div><div class="mb" style="height:72%;background:var(--lime)"></div></div>'
+  },
+  kpi:{
+    title:'Overall progress',size:'kpi',dotColor:'var(--lime)',
+    content:'<div><div class="mini-kpi" style="color:var(--lime)">66%</div><div class="mini-kpi-sub">Target achievement</div></div>'
+  },
+  pie:{
+    title:'Budget by Category',size:'pie',dotColor:'#F59E0B',
+    content:'<svg class="mini-pie-svg" viewBox="0 0 36 36"><circle cx="18" cy="18" r="15.9" fill="none" stroke="var(--lime)" stroke-width="8" stroke-dasharray="45 55" transform="rotate(-90 18 18)"/><circle cx="18" cy="18" r="15.9" fill="none" stroke="#4DA8D4" stroke-width="8" stroke-dasharray="30 70" stroke-dashoffset="-45" transform="rotate(-90 18 18)"/><circle cx="18" cy="18" r="15.9" fill="none" stroke="#F59E0B" stroke-width="8" stroke-dasharray="25 75" stroke-dashoffset="-75" transform="rotate(-90 18 18)"/></svg>'
+  },
+  table:{
+    title:'Actuals vs Targets',size:'table',dotColor:'var(--blue)',
+    content:'<div style="width:100%;font-size:.68rem;color:var(--muted)"><div style="display:flex;justify-content:space-between;padding:4px 2px;border-bottom:1px solid var(--border);font-weight:700;color:var(--ink);font-size:.62rem;text-transform:uppercase;letter-spacing:.05em"><span style="flex:1.2">Location</span><span style="width:38px;text-align:right">Act</span><span style="width:38px;text-align:right">Tgt</span><span style="width:42px;text-align:right">%</span></div><div style="display:flex;justify-content:space-between;padding:5px 2px;border-bottom:1px solid var(--border)"><span style="flex:1.2">Agadez</span><span style="width:38px;text-align:right">14</span><span style="width:38px;text-align:right">15</span><span style="width:42px;text-align:right;color:var(--lime);font-weight:600">93%</span></div><div style="display:flex;justify-content:space-between;padding:5px 2px;border-bottom:1px solid var(--border);background:var(--bg)"><span style="flex:1.2">Bungoma</span><span style="width:38px;text-align:right">30</span><span style="width:38px;text-align:right">18</span><span style="width:42px;text-align:right;color:var(--lime);font-weight:600">167%</span></div><div style="display:flex;justify-content:space-between;padding:5px 2px;border-bottom:1px solid var(--border)"><span style="flex:1.2">Kidal</span><span style="width:38px;text-align:right">9</span><span style="width:38px;text-align:right">12</span><span style="width:42px;text-align:right;color:#F59E0B;font-weight:600">75%</span></div><div style="display:flex;justify-content:space-between;padding:5px 2px"><span style="flex:1.2">Nairobi</span><span style="width:38px;text-align:right">22</span><span style="width:38px;text-align:right">20</span><span style="width:42px;text-align:right;color:var(--lime);font-weight:600">110%</span></div></div>'
+  },
+  bar2:{
+    title:'Committee Training',size:'bar',dotColor:'var(--lime)',
+    content:'<div class="mini-bars"><div class="mb" style="height:60%;background:var(--lime)"></div><div class="mb" style="height:45%;background:var(--lime)"></div><div class="mb" style="height:72%;background:var(--lime)"></div><div class="mb" style="height:35%;background:#F59E0B"></div><div class="mb" style="height:58%;background:var(--lime)"></div><div class="mb" style="height:82%;background:var(--lime)"></div></div>'
+  },
+  kpi2:{
+    title:'Water points',size:'kpi',dotColor:'#4DA8D4',
+    content:'<div><div class="mini-kpi" style="color:#4DA8D4">31</div><div class="mini-kpi-sub">Water points built</div><div style="margin-top:8px;height:4px;background:var(--bg2);border-radius:3px;overflow:hidden;width:80%;margin-left:auto;margin-right:auto"><div style="width:77%;height:100%;background:#4DA8D4;border-radius:3px"></div></div></div>'
+  },
+};
+const added=new Set();
+window.addPanel=function(btn,type){
+  if(added.has(type))return;
+  added.add(type);btn.classList.add('added');
+  const canvas=document.getElementById('dash-canvas');
+  const empty=document.getElementById('dc-empty');
+  if(empty){empty.remove();canvas.classList.remove('is-empty');}
+  const p=panels[type];
+  const div=document.createElement('div');
+  div.className='dc-panel size-'+p.size;
+  div.innerHTML='<div class="dc-panel-head"><div class="dc-panel-head-dot" style="background:'+p.dotColor+'"></div><div class="dc-panel-head-label">'+p.title+'</div></div><div class="dc-panel-body">'+p.content+'</div>';
+  canvas.appendChild(div);
+};
+window.clearDash=function(){
+  added.clear();
+  document.querySelectorAll('.palette-item').forEach(b=>b.classList.remove('added'));
+  const canvas=document.getElementById('dash-canvas');
+  canvas.classList.add('is-empty');
+  canvas.innerHTML='<div class="dc-empty" id="dc-empty"><div class="dc-empty-sym">⊞</div><p>Click a report on the left to add it to your dashboard.<br>Panels assemble into a live bento layout.</p></div>';
+};
+
+document.querySelectorAll('.faq-q').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    const item=btn.parentElement,was=item.classList.contains('open');
+    document.querySelectorAll('.faq-item').forEach(i=>i.classList.remove('open'));
+    if(!was)item.classList.add('open');
+  });
+});
+</script>
+</body>
+</html>

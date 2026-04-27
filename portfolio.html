@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Portfolio Management Software for Development Programs | DELTA Monitoring</title>
+<meta name="description" content="Manage multiple projects and programs from a centralized portfolio view with structured visibility on performance, implementation, and reporting.">
+<link rel="canonical" href="https://delta-monitoring.com/features/portfolio/">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+
+:root{
+  --blue:#1B6E8E;--blue-d:#0F445A;--blue-800:#0F445A;--blue-700:#155A75;
+  --lime:#17B26A;--lime-d:#079455;
+  --ink:#0F2E40;--muted:#535862;
+  --bg:#EFF8FB;--bg2:#D0EBF4;--border:#D0EBF4;
+  --navy:#0F445A;--mapnav:#0A1A2E;
+  --font-d:'Outfit',sans-serif;
+  --font-b:'Inter',system-ui,sans-serif;
+  --r:16px;--r-sm:8px;
+  --ease:cubic-bezier(.25,.46,.45,.94);
+  --shadow-xs:0 1px 2px rgba(10,13,18,.05);
+  --shadow-sm:0 1px 3px rgba(10,13,18,.10),0 1px 2px rgba(10,13,18,.06);
+  --shadow-md:0 4px 6px rgba(10,13,18,.07),0 2px 4px rgba(10,13,18,.06);
+  --shadow-lg:0 10px 15px rgba(10,13,18,.08),0 4px 6px rgba(10,13,18,.05);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--font-b);color:var(--ink);background:#fff;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+
+/* NAV */
+#nav{position:fixed;top:0;left:0;right:0;z-index:200;height:66px;padding:0 5vw;display:flex;align-items:center;justify-content:space-between;background:rgba(0,56,101,.96);backdrop-filter:blur(16px);transition:background .3s,box-shadow .3s}
+#nav.light{background:rgba(255,255,255,.96);box-shadow:0 1px 0 var(--border)}
+.nav-logo{display:flex;align-items:center;gap:9px;text-decoration:none}
+.nav-logo-mark{display:flex;align-items:center;justify-content:center;transition:opacity .3s}
+#nav.light .nav-logo-mark{opacity:.85}
+.nav-logo-mark img{height:32px;width:auto}
+.nav-logo-text{display:none}
+#nav.light .nav-logo-text{display:none}
+.nav-links{display:flex;align-items:center;gap:1.6rem}
+.nav-links>a{font-size:.85rem;font-weight:500;color:rgba(255,255,255,.7);text-decoration:none;transition:color .2s}
+.nav-links>a:hover{color:#fff}
+#nav.light .nav-links>a{color:var(--muted)}
+#nav.light .nav-links>a:hover{color:var(--blue)}
+.nav-dd{position:relative}
+.nav-dd-trigger{display:flex;align-items:center;gap:4px;cursor:pointer;font-size:.85rem;font-weight:500;color:rgba(255,255,255,.7);background:none;border:none;font-family:inherit;transition:color .2s}
+.nav-dd-trigger::after{content:'';width:5px;height:5px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:rotate(45deg) translateY(-2px);display:inline-block;opacity:.45;transition:transform .2s}
+.nav-dd:hover .nav-dd-trigger{color:#fff}
+.nav-dd:hover .nav-dd-trigger::after{transform:rotate(-135deg) translateY(0)}
+#nav.light .nav-dd-trigger{color:var(--muted)}
+#nav.light .nav-dd:hover .nav-dd-trigger{color:var(--blue)}
+.nd-panel{position:absolute;top:calc(100% + 16px);left:-16px;width:280px;background:#fff;border:1px solid var(--border);border-radius:14px;box-shadow:0 20px 60px rgba(0,56,101,.14);padding:.5rem;opacity:0;pointer-events:none;transform:translateY(8px);transition:all .22s var(--ease)}
+.nav-dd:hover .nd-panel{opacity:1;pointer-events:all;transform:translateY(0)}
+.nd-item{display:flex;align-items:center;gap:.7rem;padding:.55rem .8rem;border-radius:9px;text-decoration:none;transition:background .15s}
+.nd-item:hover{background:var(--bg2)}
+.nd-icon{width:32px;height:32px;border-radius:8px;background:var(--bg);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.nd-txt{display:flex;flex-direction:column;gap:1px}
+.nd-name{font-size:.83rem;font-weight:600;color:var(--ink)}
+.nd-tag{font-size:.71rem;color:var(--muted)}
+.nav-cta{display:flex;align-items:center;gap:.7rem}
+.nav-fr{font-size:.8rem;font-weight:600;color:rgba(255,255,255,.82);text-decoration:none;padding:.35rem .8rem;border-radius:99px;border:1px solid rgba(255,255,255,.2);transition:all .2s}
+#nav.light .nav-fr{color:var(--blue);border-color:var(--border)}
+.nav-demo{font-family:var(--font-d);font-size:.85rem;font-weight:700;color:#082D3D;text-decoration:none;padding:.45rem 1.2rem;border-radius:99px;background:var(--lime);transition:all .2s}
+.nav-demo:hover{background:var(--lime-d)}
+
+/* ══ HERO — navy, project cards grid as WOW visual ══════════ */
+/* Unique layout: text top-left, cards fill right and bleed to bottom */
+#hero{
+  background:var(--navy);
+  min-height:100vh;padding:120px 5vw 0;
+  position:relative;overflow:hidden;
+  display:grid;grid-template-columns:42fr 58fr;
+  align-items:start;gap:4vw;
+}
+#hero::before{content:'';position:absolute;inset:0;
+  background-image:linear-gradient(rgba(255,255,255,.022) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.022) 1px,transparent 1px);
+  background-size:56px 56px;pointer-events:none}
+/* fade out bottom of hero */
+#hero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:100px;
+  background:linear-gradient(transparent,var(--navy));pointer-events:none;z-index:3}
+.hero-l{padding-bottom:72px;position:relative;z-index:2}
+.breadcrumb{display:flex;align-items:center;gap:.5rem;font-size:.72rem;color:rgba(255,255,255,.35);margin-bottom:1.2rem}
+.breadcrumb a{color:rgba(255,255,255,.45);text-decoration:none}
+.breadcrumb a:hover{color:rgba(255,255,255,.82)}
+.breadcrumb span{opacity:.4}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:8px;background:rgba(23,178,106,.10);border:1px solid rgba(23,178,106,.20);border-radius:99px;padding:.3rem .95rem;font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--lime);margin-bottom:1.3rem;width:fit-content}
+.eyebrow-dot{width:5px;height:5px;border-radius:50%;background:var(--lime);animation:blink 2.2s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+.hero-h1{font-family:var(--font-d);font-weight:800;font-size:clamp(2.3rem,3.6vw,3.5rem);line-height:1.07;letter-spacing:-.04em;color:#fff;margin-bottom:1.2rem}
+.hero-h1 em{font-style:normal;color:var(--lime)}
+.hero-sub{font-size:.97rem;line-height:1.78;color:rgba(255,255,255,.78);margin-bottom:2rem;max-width:420px}
+.hero-sub strong{color:rgba(255,255,255,.82);font-weight:600}
+.hero-actions{display:flex;gap:.85rem;flex-wrap:wrap;align-items:center;margin-bottom:1.8rem}
+.btn-lime{display:inline-flex;align-items:center;gap:.45rem;background:var(--lime);color:var(--navy);padding:.85rem 1.8rem;border-radius:99px;font-family:var(--font-d);font-weight:700;font-size:.92rem;text-decoration:none;box-shadow:0 8px 28px rgba(23,178,106,.25);transition:all .22s}
+.btn-lime:hover{background:var(--lime-d);color:#082D3D;transform:translateY(-2px)}
+.btn-ghost{display:inline-flex;align-items:center;gap:.45rem;color:rgba(255,255,255,.62);padding:.83rem 1.35rem;border-radius:99px;font-weight:500;font-size:.92rem;border:1px solid rgba(255,255,255,.16);text-decoration:none;transition:all .2s}
+.btn-ghost:hover{color:#fff;border-color:rgba(255,255,255,.42)}
+.hero-tags{display:flex;gap:.5rem;flex-wrap:wrap}
+.htag{font-size:.69rem;font-weight:600;color:rgba(255,255,255,.32);padding:.24rem .72rem;border-radius:99px;border:1px solid rgba(255,255,255,.09)}
+
+/* ── Portfolio toolbar mockup above cards ── */
+.hero-r{position:relative;z-index:2;padding-top:20px}
+.port-toolbar{
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:12px 12px 0 0;
+  padding:10px 16px;
+  display:flex;align-items:center;justify-content:space-between;
+  border-bottom:none;
+}
+.port-tabs{display:flex;gap:0}
+.port-tab{padding:5px 14px;font-size:.72rem;font-weight:600;color:rgba(255,255,255,.35);cursor:default;border-bottom:2px solid transparent;font-family:var(--font-b)}
+.port-tab.active{color:rgba(255,255,255,.85);border-bottom-color:var(--lime)}
+.port-filters{display:flex;align-items:center;gap:8px}
+.port-filter-pill{font-size:.67rem;padding:3px 9px;border-radius:99px;border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.35);background:rgba(255,255,255,.04)}
+.port-count{font-size:.68rem;color:rgba(255,255,255,.25);font-family:var(--font-b)}
+
+/* ── Project cards grid — signature animation ── */
+.proj-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:10px;
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:0 0 12px 12px;
+  padding:12px;
+  border-top:none;
+}
+.proj-card{
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.09);
+  border-radius:10px;padding:13px;
+  animation:cardIn .5s var(--ease) both;
+  transition:background .2s,transform .2s;
+}
+@keyframes cardIn{
+  from{opacity:0;transform:translateY(14px)}
+  to{opacity:1;transform:translateY(0)}
+}
+.proj-card:hover{background:rgba(255,255,255,.1);transform:translateY(-2px)}
+.pc-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px}
+.pc-sector{font-size:.62rem;font-weight:700;color:rgba(255,255,255,.3);letter-spacing:.06em;text-transform:uppercase;font-family:var(--font-d)}
+.pc-status{font-size:.6rem;font-weight:700;padding:1px 7px;border-radius:99px;letter-spacing:.04em}
+.pc-code{font-size:.65rem;font-weight:800;color:rgba(255,255,255,.35);font-family:var(--font-d);letter-spacing:.04em;margin-bottom:3px}
+.pc-name{font-size:.79rem;font-weight:700;color:rgba(255,255,255,.82);line-height:1.3;margin-bottom:5px}
+.pc-meta{font-size:.67rem;color:rgba(255,255,255,.3);margin-bottom:9px;line-height:1.4}
+.pc-progress{margin-bottom:8px}
+.pc-prog-top{display:flex;justify-content:space-between;font-size:.68rem;margin-bottom:4px;color:rgba(255,255,255,.65)}
+.pc-bar-bg{height:4px;background:rgba(255,255,255,.07);border-radius:2px;overflow:hidden}
+.pc-bar-fill{height:100%;border-radius:2px;width:0;animation:barFill 1.2s var(--ease) forwards}
+@keyframes barFill{to{width:var(--w)}}
+.pc-amount{font-size:.68rem;font-weight:700;color:rgba(255,255,255,.25);font-family:var(--font-d)}
+
+/* ══ PROOF ══ */
+#proof{padding:22px 5vw;background:#fff;border-bottom:1px solid var(--border)}
+.proof-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;gap:2rem;flex-wrap:wrap}
+.proof-item{font-size:.82rem;font-weight:600;color:var(--navy)}
+.proof-item span{font-weight:400;color:var(--muted)}
+.proof-div{width:1px;height:18px;background:var(--border);flex-shrink:0}
+
+/* ══ SHARED ══ */
+.eye{display:inline-flex;align-items:center;gap:7px;font-size:.68rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--blue);margin-bottom:.85rem}
+.eye-line{width:14px;height:2px;background:var(--lime);border-radius:1px}
+h2{font-family:var(--font-d);font-size:clamp(1.8rem,2.9vw,2.55rem);font-weight:800;line-height:1.1;letter-spacing:-.03em;color:var(--ink);margin-bottom:1rem}
+h2 em{font-style:normal;color:var(--blue)}
+.sp{font-size:.93rem;line-height:1.78;color:var(--muted)}
+.fu{opacity:0;transform:translateY(16px);transition:opacity .5s var(--ease),transform .5s var(--ease)}
+.fu.in{opacity:1;transform:translateY(0)}
+
+/* ══ INTRO — white, horizontal ══ */
+#intro{padding:88px 5vw;background:#fff}
+.intro-inner{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:6vw;align-items:center}
+.intro-cards{display:flex;flex-direction:column;gap:12px}
+.ic{background:var(--bg);border:1px solid var(--border);border-radius:var(--r-sm);padding:1.1rem 1.3rem;display:flex;align-items:flex-start;gap:11px;transition:all .2s}
+.ic:hover{background:#fff;border-color:var(--blue);transform:translateX(4px)}
+.ic-sym{font-size:.75rem;font-weight:800;color:var(--blue);font-family:var(--font-d);min-width:30px;padding-top:1px}
+.ic-title{font-family:var(--font-d);font-size:.87rem;font-weight:700;color:var(--ink);margin-bottom:.18rem}
+.ic-text{font-size:.8rem;line-height:1.56;color:var(--muted)}
+
+/* ══ VIEWS SWITCHER — bg: --bg ══ */
+#views{padding:88px 5vw;background:var(--bg)}
+.views-inner{max-width:1200px;margin:0 auto}
+.views-hd{margin-bottom:40px}
+.views-tabs{display:flex;gap:6px;margin-bottom:20px;flex-wrap:wrap}
+.vtab{padding:.38rem 1rem;border-radius:99px;border:1px solid var(--border);font-size:.79rem;font-weight:600;color:var(--muted);cursor:pointer;transition:all .2s;background:#fff}
+.vtab.active{background:var(--navy);color:#fff;border-color:var(--navy)}
+.views-display{background:#fff;border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
+.vd-chrome{height:30px;background:var(--bg);display:flex;align-items:center;padding:0 14px;gap:5px;border-bottom:1px solid var(--border)}
+.vd-dot{width:7px;height:7px;border-radius:50%}
+/* View panels */
+.view-panel{padding:20px;display:none}
+.view-panel.active{display:block}
+/* List view */
+.list-row{display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr;align-items:center;padding:9px 12px;border-bottom:1px solid var(--border);font-size:.8rem;gap:12px}
+.list-row:last-child{border-bottom:none}
+.list-row.hd{background:var(--bg);font-size:.68rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.lrow-name{font-weight:600;color:var(--ink)}
+.lrow-code{font-size:.7rem;color:var(--muted)}
+.lrow-pct{font-weight:700}
+.lrow-badge{font-size:.66rem;font-weight:700;padding:2px 7px;border-radius:99px}
+.badge-active{background:rgba(114,191,68,.1);color:var(--lime-d)}
+.badge-done{background:var(--bg2);color:var(--blue)}
+/* Map view stub */
+.map-stub{height:260px;background:var(--bg);border-radius:8px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+.map-bg{position:absolute;inset:0;opacity:.08}
+.map-point{position:absolute;width:10px;height:10px;border-radius:50%;background:var(--lime);box-shadow:0 0 0 4px rgba(23,178,106,.16);animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 4px rgba(23,178,106,.16)}50%{box-shadow:0 0 0 8px rgba(23,178,106,.07)}}
+.map-label{font-size:.85rem;color:var(--muted);z-index:1}
+/* Dashboard view stub */
+.dash-stub{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.ds-panel{background:var(--bg);border-radius:8px;padding:12px}
+.ds-title{font-size:.7rem;font-weight:700;color:var(--muted);margin-bottom:8px}
+.ds-bars{display:flex;align-items:flex-end;gap:4px;height:60px}
+.ds-bar{border-radius:2px 2px 0 0;flex:1}
+
+/* ══ CAPABILITIES — white, 2-col asymmetric ══ */
+#capabilities{padding:88px 5vw;background:#fff}
+.cap-inner{max-width:1200px;margin:0 auto}
+.cap-hd{text-align:center;margin-bottom:48px}
+.cap-layout{display:grid;grid-template-columns:3fr 2fr;gap:5vw;align-items:start}
+.cap-list-left{display:flex;flex-direction:column;gap:20px}
+.cap-item{display:flex;gap:16px;align-items:flex-start;padding:1.2rem;border-radius:var(--r-sm);border:1px solid var(--border);background:var(--bg);transition:all .22s}
+.cap-item:hover{background:#fff;border-color:var(--blue);transform:translateX(3px)}
+.cap-sym{width:36px;height:36px;border-radius:9px;background:var(--bg2);display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:800;color:var(--blue);font-family:var(--font-d);flex-shrink:0}
+.cap-title{font-family:var(--font-d);font-size:.9rem;font-weight:800;color:var(--ink);margin-bottom:.28rem}
+.cap-text{font-size:.82rem;line-height:1.62;color:var(--muted)}
+.cap-right{display:flex;flex-direction:column;gap:12px;position:sticky;top:90px}
+.filter-demo{background:var(--bg);border:1px solid var(--border);border-radius:var(--r-sm);padding:1.2rem}
+.fd-title{font-size:.68rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+.fd-filter{margin-bottom:8px}
+.fd-label{font-size:.7rem;font-weight:600;color:var(--ink);margin-bottom:4px}
+.fd-pills{display:flex;gap:4px;flex-wrap:wrap}
+.fd-pill{font-size:.66rem;padding:2px 8px;border-radius:99px;border:1px solid var(--border);background:#fff;color:var(--muted);cursor:default}
+.fd-pill.sel{background:var(--bg2);border-color:var(--blue);color:var(--blue);font-weight:600}
+.stat-cards{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.stat-card{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:.9rem;text-align:center}
+.stat-n{font-family:var(--font-d);font-size:1.4rem;font-weight:800;color:var(--navy)}
+.stat-l{font-size:.68rem;color:var(--muted);margin-top:2px}
+
+/* ══ DARK SECTION ══ */
+#why{padding:88px 5vw;background:#082D3D;position:relative;overflow:hidden}
+#why::before{content:'';position:absolute;inset:0;
+  background-image:linear-gradient(rgba(255,255,255,.018) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.018) 1px,transparent 1px);
+  background-size:48px 48px;pointer-events:none}
+.why-inner{max-width:1200px;margin:0 auto;position:relative;z-index:1;
+  display:grid;grid-template-columns:1fr 1fr;gap:5vw;align-items:center}
+.why-l .eye{color:var(--lime)}
+.why-l h2{color:#fff}
+.why-l h2 em{color:var(--lime)}
+.why-l p{font-size:.93rem;line-height:1.76;color:rgba(255,255,255,.70);margin-top:.7rem}
+.why-cards{display:flex;flex-direction:column;gap:12px}
+.wc{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:1.2rem 1.4rem;display:flex;gap:12px;align-items:flex-start;transition:background .2s}
+.wc:hover{background:rgba(255,255,255,.07)}
+.wc-sym{font-size:.75rem;font-weight:800;color:var(--lime);font-family:var(--font-d);min-width:28px;padding-top:1px}
+.wc-title{font-family:var(--font-d);font-size:.88rem;font-weight:700;color:#fff;margin-bottom:.18rem}
+.wc-text{font-size:.8rem;line-height:1.58;color:rgba(255,255,255,.65)}
+
+/* ══ USE CASES — --bg ══ */
+#usecases{padding:80px 5vw;background:var(--bg)}
+.uc-inner{max-width:1200px;margin:0 auto}
+.uc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:40px}
+.uc-card{background:#fff;border:1px solid var(--border);border-radius:var(--r);padding:1.7rem;border-left:4px solid var(--border);transition:all .23s}
+.uc-card:hover{transform:translateY(-3px);box-shadow:0 10px 32px rgba(0,56,101,.08);border-left-color:var(--lime)}
+.uc-ab{font-size:.7rem;font-weight:800;color:var(--blue);font-family:var(--font-d);letter-spacing:.06em;margin-bottom:.7rem}
+.uc-title{font-family:var(--font-d);font-size:.97rem;font-weight:800;color:var(--ink);margin-bottom:.32rem}
+.uc-text{font-size:.83rem;line-height:1.65;color:var(--muted)}
+
+/* ══ FAQ — white ══ */
+#faq{padding:72px 5vw;background:#fff}
+.faq-inner{max-width:720px;margin:0 auto}
+.faq-hd{text-align:center;margin-bottom:40px}
+.faq-item{border:1px solid var(--border);border-radius:var(--r-sm);margin-bottom:.55rem;overflow:hidden}
+.faq-q{width:100%;display:flex;justify-content:space-between;align-items:center;padding:.9rem 1.2rem;background:none;border:none;cursor:pointer;text-align:left;font-size:.9rem;font-weight:600;color:var(--ink);font-family:var(--font-b);transition:background .17s}
+.faq-q:hover{background:var(--bg)}
+.faq-ic{width:20px;height:20px;border-radius:50%;background:var(--bg2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .28s;font-size:12px;color:var(--blue);font-weight:700;font-family:var(--font-d)}
+.faq-item.open .faq-ic{background:var(--blue);color:#fff;transform:rotate(45deg)}
+.faq-a{max-height:0;overflow:hidden;transition:max-height .3s ease,padding .3s;padding:0 1.2rem}
+.faq-item.open .faq-a{max-height:200px;padding:0 1.2rem .9rem}
+.faq-a p{font-size:.86rem;line-height:1.7;color:var(--muted)}
+
+/* ══ FEAT NAV — --bg2 ══ */
+#featnav{padding:40px 5vw;background:var(--bg2);border-top:1px solid var(--border)}
+.fn-inner{max-width:1200px;margin:0 auto}
+.fn-label{font-size:.65rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:13px}
+.fn-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:9px}
+.fn-card{background:#fff;border:1px solid var(--border);border-radius:var(--r-sm);padding:.8rem .9rem;text-decoration:none;transition:all .2s;display:flex;flex-direction:column;gap:.25rem}
+.fn-card:hover{border-color:var(--blue);transform:translateY(-2px);box-shadow:0 5px 16px rgba(0,56,101,.08)}
+.fn-ab{font-size:.63rem;font-weight:800;color:var(--blue);font-family:var(--font-d);letter-spacing:.04em}
+.fn-name{font-size:.76rem;font-weight:700;color:var(--ink);font-family:var(--font-d)}
+.fn-sub{font-size:.68rem;color:var(--muted)}
+
+/* ══ CTA — navy ══ */
+#cta{padding:88px 5vw;background:var(--navy);position:relative;overflow:hidden;border-top:3px solid var(--lime)}
+#cta::before{content:'';position:absolute;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(23,178,106,.06),transparent 70%);top:-160px;right:-80px;pointer-events:none}
+.cta-inner{max-width:640px;margin:0 auto;text-align:center;position:relative;z-index:1}
+.cta-eye{display:inline-flex;align-items:center;gap:7px;font-size:.66rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:.85rem}
+.cta-inner h2{color:#fff;margin-bottom:.8rem;font-size:clamp(1.85rem,3.4vw,2.8rem)}
+.cta-inner h2 em{color:var(--lime)}
+.cta-sub{color:rgba(255,255,255,.75);font-size:.92rem;line-height:1.72;margin-bottom:1.9rem}
+.cta-actions{display:flex;gap:.85rem;justify-content:center;flex-wrap:wrap}
+.btn-white{display:inline-flex;align-items:center;gap:.45rem;background:#fff;color:var(--navy);padding:.88rem 1.85rem;border-radius:99px;font-family:var(--font-d);font-size:.92rem;font-weight:700;text-decoration:none;box-shadow:0 8px 24px rgba(0,0,0,.18);transition:all .22s}
+.btn-white:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(0,0,0,.25)}
+.btn-ol{display:inline-flex;align-items:center;gap:.45rem;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.7);padding:.86rem 1.55rem;border-radius:99px;font-size:.92rem;font-weight:500;text-decoration:none;transition:all .2s}
+.btn-ol:hover{border-color:rgba(255,255,255,.78);color:#fff}
+
+footer{background:#0F1C24;padding:48px 5vw 24px}
+.footer-inner{max-width:1200px;margin:0 auto}
+.footer-top{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:2.5rem;margin-bottom:32px}
+.footer-brand-text{font-size:.8rem;line-height:1.7;color:rgba(255,255,255,.3);margin-top:.65rem;max-width:210px}
+.footer-col-title{font-size:.65rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.26);margin-bottom:.85rem}
+.footer-links{list-style:none;display:flex;flex-direction:column;gap:.42rem}
+.footer-links a{font-size:.8rem;color:rgba(255,255,255,.36);text-decoration:none;transition:color .18s}
+.footer-links a:hover{color:#fff}
+.footer-bottom{border-top:1px solid rgba(255,255,255,.06);padding-top:18px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.75rem}
+.footer-legal{font-size:.73rem;color:rgba(255,255,255,.2)}
+.footer-lang{display:flex;gap:.55rem}
+.footer-lang a{font-size:.73rem;color:rgba(255,255,255,.26);text-decoration:none;padding:.2rem .52rem;border-radius:5px;border:1px solid rgba(255,255,255,.1);transition:all .18s}
+.footer-lang a:hover,.footer-lang a.active{color:#fff;border-color:rgba(255,255,255,.3)}
+@media(max-width:960px){
+  #hero{grid-template-columns:1fr;padding-bottom:40px}
+  .proj-grid{grid-template-columns:1fr 1fr}
+  .intro-inner,.why-inner{grid-template-columns:1fr}
+  .cap-layout{grid-template-columns:1fr}
+  .cap-right{position:relative;top:0}
+  .uc-grid{grid-template-columns:1fr}
+  .fn-grid{grid-template-columns:repeat(2,1fr)}
+  .footer-top{grid-template-columns:1fr 1fr}
+  .nav-links{display:none}
+}
+</style>
+</head>
+<body>
+
+<nav id="nav">
+  <a href="index.html" class="nav-logo">
+    <div class="nav-logo-mark" style="background:transparent;padding:0;width:auto;height:auto"><img src="data:image/png;base64,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" alt="Delta Monitoring" style="height:30px;width:auto;display:block"></div>
+  </a>
+  <div class="nav-links">
+    <div class="nav-dd">
+      <button class="nav-dd-trigger">Features</button>
+      <div class="nd-panel"><a href="portfolio.html" class="nd-item" style="background:rgba(0,102,153,.06)"><span class="nd-icon"><span style="font-size:.6rem;font-weight:800;color:var(--blue);font-family:var(--font-d)">PORT</span></span><span class="nd-txt"><span class="nd-name">Portfolio Management</span><span class="nd-tag">Strategic oversight</span></span></a><a href="activities.html" class="nd-item"><span class="nd-icon"><span style="font-size:.6rem;font-weight:800;color:var(--blue);font-family:var(--font-d)">ACT</span></span><span class="nd-txt"><span class="nd-name">Activity Management</span><span class="nd-tag">Implementation tracking</span></span></a><a href="indicators.html" class="nd-item"><span class="nd-icon"><span style="font-size:.6rem;font-weight:800;color:var(--blue);font-family:var(--font-d)">IND</span></span><span class="nd-txt"><span class="nd-name">Indicators & Results</span><span class="nd-tag">Results frameworks</span></span></a><a href="data-collection.html" class="nd-item"><span class="nd-icon"><span style="font-size:.6rem;font-weight:800;color:var(--blue);font-family:var(--font-d)">DATA</span></span><span class="nd-txt"><span class="nd-name">Data Collection</span><span class="nd-tag">Field-first</span></span></a><a href="dashboards.html" class="nd-item"><span class="nd-icon"><span style="font-size:.6rem;font-weight:800;color:var(--blue);font-family:var(--font-d)">DASH</span></span><span class="nd-txt"><span class="nd-name">Dashboards & Reporting</span><span class="nd-tag">Decision-ready insights</span></span></a><a href="gis.html" class="nd-item"><span class="nd-icon"><span style="font-size:.6rem;font-weight:800;color:var(--blue);font-family:var(--font-d)">GIS</span></span><span class="nd-txt"><span class="nd-name">Geospatial (GIS)</span><span class="nd-tag">Geographic intelligence</span></span></a></div>
+    </div>
+    <a href="#">Solutions</a>
+    <a href="index.html#compare">Why DELTA</a>
+    <a href="#">Resources</a>
+    <a href="#">About</a>
+  </div>
+  <div class="nav-cta">
+    <a href="#" class="nav-fr">FR</a>
+    <a href="#" class="nav-demo">Book a Demo</a>
+  </div>
+</nav>
+
+<!-- HERO — project cards grid as signature visual -->
+<section id="hero">
+  <div class="hero-l">
+    <div class="breadcrumb">
+      <a href="index.html">Home</a><span>›</span>
+      <a href="index.html#features">Features</a><span>›</span>
+      <span style="color:rgba(255,255,255,.7)">Portfolio Management</span>
+    </div>
+    <div class="hero-eyebrow"><span class="eyebrow-dot"></span>Portfolio Management</div>
+    <h1 class="hero-h1">
+      Manage multiple projects<br>with a <em>clearer</em><br>portfolio view.
+    </h1>
+    <p class="hero-sub">
+      DELTA helps organizations monitor projects and programs from a <strong>centralized portfolio environment</strong> designed for oversight, consistency, and cross-project visibility.
+    </p>
+    <div class="hero-actions">
+      <a href="#views" class="btn-lime">See the portfolio view →</a>
+      <a href="#" class="btn-ghost">Request a Demo</a>
+    </div>
+    <div class="hero-tags">
+      <span class="htag">Centralized portfolio view</span>
+      <span class="htag">Multi-project oversight</span>
+      <span class="htag">Cross-project visibility</span>
+      <span class="htag">Financial overview</span>
+    </div>
+  </div>
+
+  <!-- Right: portfolio interface mockup with animated cards -->
+  <div class="hero-r">
+    <div class="port-toolbar">
+      <div class="port-tabs">
+        <div class="port-tab active">List</div>
+        <div class="port-tab">Map</div>
+        <div class="port-tab">Dashboard</div>
+        <div class="port-tab">Risks</div>
+      </div>
+      <div class="port-filters">
+        <span class="port-filter-pill">Active ×</span>
+        <span class="port-filter-pill">WASH ×</span>
+        <span class="port-count">6 projects</span>
+      </div>
+    </div>
+    <div class="proj-grid">
+      <div class="proj-card" style="animation-delay:0.10s">
+  <div class="pc-top">
+    <div class="pc-sector">WASH</div>
+    <div class="pc-status" style="background:rgba(23,178,106,.12);color:var(--lime);border:1px solid rgba(23,178,106,.20)">Active</div>
+  </div>
+  <div class="pc-code">WATSAN-KE</div>
+  <div class="pc-name">Water & Sanitation Program</div>
+  <div class="pc-meta">UNICEF · Jan 2022 – Dec 2026</div>
+  <div class="pc-progress">
+    <div class="pc-prog-top">
+      <span>Completion</span>
+      <span style="color:#17B26A;font-weight:700">76%</span>
+    </div>
+    <div class="pc-bar-bg">
+      <div class="pc-bar-fill" style="--w:76%;background:#17B26A;animation-delay:0.50s"></div>
+    </div>
+  </div>
+  <div class="pc-amount">$4.2M</div>
+</div><div class="proj-card" style="animation-delay:0.18s">
+  <div class="pc-top">
+    <div class="pc-sector">Health</div>
+    <div class="pc-status" style="background:rgba(23,178,106,.12);color:var(--lime);border:1px solid rgba(23,178,106,.20)">Active</div>
+  </div>
+  <div class="pc-code">NUTR-MLI</div>
+  <div class="pc-name">Nutrition & Food Security</div>
+  <div class="pc-meta">WFP · Mar 2023 – Feb 2027</div>
+  <div class="pc-progress">
+    <div class="pc-prog-top">
+      <span>Completion</span>
+      <span style="color:#F59E0B;font-weight:700">52%</span>
+    </div>
+    <div class="pc-bar-bg">
+      <div class="pc-bar-fill" style="--w:52%;background:#F59E0B;animation-delay:0.58s"></div>
+    </div>
+  </div>
+  <div class="pc-amount">$2.8M</div>
+</div><div class="proj-card" style="animation-delay:0.26s">
+  <div class="pc-top">
+    <div class="pc-sector">Education</div>
+    <div class="pc-status" style="background:rgba(23,178,106,.12);color:var(--lime);border:1px solid rgba(23,178,106,.20)">Active</div>
+  </div>
+  <div class="pc-code">EDUC-BFA</div>
+  <div class="pc-name">Girls' Education Initiative</div>
+  <div class="pc-meta">USAID · Jun 2021 – May 2025</div>
+  <div class="pc-progress">
+    <div class="pc-prog-top">
+      <span>Completion</span>
+      <span style="color:#17B26A;font-weight:700">88%</span>
+    </div>
+    <div class="pc-bar-bg">
+      <div class="pc-bar-fill" style="--w:88%;background:#17B26A;animation-delay:0.66s"></div>
+    </div>
+  </div>
+  <div class="pc-amount">$6.1M</div>
+</div><div class="proj-card" style="animation-delay:0.34s">
+  <div class="pc-top">
+    <div class="pc-sector">Agriculture</div>
+    <div class="pc-status" style="background:rgba(23,178,106,.12);color:var(--lime);border:1px solid rgba(23,178,106,.20)">Active</div>
+  </div>
+  <div class="pc-code">AGRI-SEN</div>
+  <div class="pc-name">Smallholder Agriculture</div>
+  <div class="pc-meta">AfDB · Sep 2024 – Aug 2028</div>
+  <div class="pc-progress">
+    <div class="pc-prog-top">
+      <span>Completion</span>
+      <span style="color:#F59E0B;font-weight:700">34%</span>
+    </div>
+    <div class="pc-bar-bg">
+      <div class="pc-bar-fill" style="--w:34%;background:#F59E0B;animation-delay:0.74s"></div>
+    </div>
+  </div>
+  <div class="pc-amount">$8.5M</div>
+</div><div class="proj-card" style="animation-delay:0.42s">
+  <div class="pc-top">
+    <div class="pc-sector">Environment</div>
+    <div class="pc-status" style="background:rgba(23,178,106,.12);color:var(--lime);border:1px solid rgba(23,178,106,.20)">Active</div>
+  </div>
+  <div class="pc-code">CLIM-NER</div>
+  <div class="pc-name">Climate Resilience Program</div>
+  <div class="pc-meta">GIZ · Jan 2023 – Dec 2027</div>
+  <div class="pc-progress">
+    <div class="pc-prog-top">
+      <span>Completion</span>
+      <span style="color:#4DA8D4;font-weight:700">61%</span>
+    </div>
+    <div class="pc-bar-bg">
+      <div class="pc-bar-fill" style="--w:61%;background:#4DA8D4;animation-delay:0.82s"></div>
+    </div>
+  </div>
+  <div class="pc-amount">$3.9M</div>
+</div><div class="proj-card" style="animation-delay:0.50s">
+  <div class="pc-top">
+    <div class="pc-sector">Infrastructure</div>
+    <div class="pc-status" style="background:rgba(77,168,212,.15);color:#4DA8D4;border:1px solid rgba(77,168,212,.25)">Completed</div>
+  </div>
+  <div class="pc-code">INFRA-MOZ</div>
+  <div class="pc-name">Rural Infrastructure</div>
+  <div class="pc-meta">World Bank · Jan 2020 – Dec 2024</div>
+  <div class="pc-progress">
+    <div class="pc-prog-top">
+      <span>Completion</span>
+      <span style="color:#17B26A;font-weight:700">100%</span>
+    </div>
+    <div class="pc-bar-bg">
+      <div class="pc-bar-fill" style="--w:100%;background:#17B26A;animation-delay:0.90s"></div>
+    </div>
+  </div>
+  <div class="pc-amount">$12.1M</div>
+</div>
+    </div>
+  </div>
+</section>
+
+<!-- PROOF -->
+<div id="proof">
+  <div class="proof-inner">
+    <div class="proof-item">Centralized view <span>all projects in one place</span></div>
+    <div class="proof-div"></div>
+    <div class="proof-item">Multi-portfolio <span>hierarchies supported</span></div>
+    <div class="proof-div"></div>
+    <div class="proof-item">Cross-cutting KPIs <span>across all projects</span></div>
+    <div class="proof-div"></div>
+    <div class="proof-item">Multi-dimension filtering <span>by sector · status · location…</span></div>
+    <div class="proof-div"></div>
+    <div class="proof-item">4 portfolio views <span>list · map · dashboard · risks</span></div>
+  </div>
+</div>
+
+<!-- INTRO -->
+<section id="intro">
+  <div class="intro-inner">
+    <div class="fu">
+      <div class="eye"><span class="eye-line"></span>The problem</div>
+      <h2>Portfolio oversight becomes harder <em>as programs scale.</em></h2>
+      <p class="sp" style="margin-top:.5rem">When organizations manage multiple projects across regions, donors, or implementing partners, visibility quickly breaks down. DELTA helps teams consolidate information without losing structure or control.</p>
+    </div>
+    <div class="intro-cards fu">
+      <div class="ic">
+        <span class="ic-sym">⊞</span>
+        <div><div class="ic-title">Centralized portfolio view</div><div class="ic-text">See projects and programs in one place, with structured visibility across timelines, status, and performance dimensions.</div></div>
+      </div>
+      <div class="ic">
+        <span class="ic-sym">∑</span>
+        <div><div class="ic-title">Financial overview per project</div><div class="ic-text">Access key financial indicators and disbursement status for each project without navigating through full management screens.</div></div>
+      </div>
+      <div class="ic">
+        <span class="ic-sym">⟁</span>
+        <div><div class="ic-title">Cross-project visibility</div><div class="ic-text">Move beyond isolated project records and gain a broader understanding of how initiatives progress across the portfolio.</div></div>
+      </div>
+      <div class="ic">
+        <span class="ic-sym">⌖</span>
+        <div><div class="ic-title">Structured for complexity</div><div class="ic-text">Support organizations managing programs across regions, sectors, or implementing partners with a structured environment that scales.</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- VIEWS SWITCHER -->
+<section id="views">
+  <div class="views-inner">
+    <div class="views-hd fu">
+      <div class="eye"><span class="eye-line"></span>Portfolio views</div>
+      <h2>Four ways to see <em>your whole portfolio.</em></h2>
+    </div>
+    <div class="views-tabs fu">
+      <button class="vtab active" onclick="switchView('list',this)">List view</button>
+      <button class="vtab" onclick="switchView('map',this)">Map view</button>
+      <button class="vtab" onclick="switchView('dashboard',this)">Dashboard view</button>
+    </div>
+    <div class="views-display fu">
+      <div class="vd-chrome">
+        <div class="vd-dot" style="background:#FF5F56"></div>
+        <div class="vd-dot" style="background:#FEBC2E"></div>
+        <div class="vd-dot" style="background:#27C840"></div>
+      </div>
+      <!-- List view -->
+      <div class="view-panel active" id="vp-list">
+        <div class="list-row hd">
+          <div>Project</div><div>Agency</div><div>Status</div><div>Progress</div><div>Amount</div>
+        </div>
+        <div class="list-row">
+          <div><div class="lrow-name">Water &amp; Sanitation Program</div><div class="lrow-code">WATSAN-KE</div></div>
+          <div style="font-size:.79rem;color:var(--muted)">UNICEF</div>
+          <div><span class="lrow-badge badge-active">Active</span></div>
+          <div><span class="lrow-pct" style="color:var(--lime)">76%</span></div>
+          <div style="font-size:.79rem;font-weight:600;color:var(--ink)">$4.2M</div>
+        </div>
+        <div class="list-row">
+          <div><div class="lrow-name">Nutrition &amp; Food Security</div><div class="lrow-code">NUTR-MLI</div></div>
+          <div style="font-size:.79rem;color:var(--muted)">WFP</div>
+          <div><span class="lrow-badge badge-active">Active</span></div>
+          <div><span class="lrow-pct" style="color:#F59E0B">52%</span></div>
+          <div style="font-size:.79rem;font-weight:600;color:var(--ink)">$2.8M</div>
+        </div>
+        <div class="list-row">
+          <div><div class="lrow-name">Girls' Education Initiative</div><div class="lrow-code">EDUC-BFA</div></div>
+          <div style="font-size:.79rem;color:var(--muted)">USAID</div>
+          <div><span class="lrow-badge badge-active">Active</span></div>
+          <div><span class="lrow-pct" style="color:var(--lime)">88%</span></div>
+          <div style="font-size:.79rem;font-weight:600;color:var(--ink)">$6.1M</div>
+        </div>
+        <div class="list-row">
+          <div><div class="lrow-name">Rural Infrastructure</div><div class="lrow-code">INFRA-MOZ</div></div>
+          <div style="font-size:.79rem;color:var(--muted)">World Bank</div>
+          <div><span class="lrow-badge badge-done">Completed</span></div>
+          <div><span class="lrow-pct" style="color:var(--blue)">100%</span></div>
+          <div style="font-size:.79rem;font-weight:600;color:var(--ink)">$12.1M</div>
+        </div>
+      </div>
+      <!-- Map view -->
+      <div class="view-panel" id="vp-map">
+        <div class="map-stub">
+          <div class="map-point" style="top:38%;left:52%"></div>
+          <div class="map-point" style="top:45%;left:48%;animation-delay:.4s"></div>
+          <div class="map-point" style="top:35%;left:44%;animation-delay:.8s"></div>
+          <div class="map-point" style="top:55%;left:38%;animation-delay:1.2s"></div>
+          <span class="map-label">Geographic project distribution — 30+ countries</span>
+        </div>
+      </div>
+      <!-- Dashboard view -->
+      <div class="view-panel" id="vp-dashboard">
+        <div class="dash-stub">
+          <div class="ds-panel">
+            <div class="ds-title">Portfolio progress by sector</div>
+            <div class="ds-bars">
+              <div class="ds-bar" style="height:68%;background:var(--lime)"></div>
+              <div class="ds-bar" style="height:52%;background:#4DA8D4"></div>
+              <div class="ds-bar" style="height:88%;background:var(--lime)"></div>
+              <div class="ds-bar" style="height:34%;background:#F59E0B"></div>
+              <div class="ds-bar" style="height:76%;background:#4DA8D4"></div>
+            </div>
+          </div>
+          <div class="ds-panel">
+            <div class="ds-title">Overall disbursement rate</div>
+            <div style="text-align:center;padding-top:10px">
+              <div style="font-family:var(--font-d);font-size:2.4rem;font-weight:800;color:var(--navy)">67%</div>
+              <div style="font-size:.75rem;color:var(--muted);margin-top:4px">$33.7M of $50.1M disbursed</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CAPABILITIES — asymmetric layout -->
+<section id="capabilities">
+  <div class="cap-inner">
+    <div class="cap-hd fu">
+      <div class="eye" style="justify-content:center"><span class="eye-line"></span>Core capabilities</div>
+      <h2>The control center <em>your portfolio needs.</em></h2>
+    </div>
+    <div class="cap-layout fu">
+      <div class="cap-list-left">
+        <div class="cap-item">
+          <div class="cap-sym">⊞</div>
+          <div><div class="cap-title">Centralized portfolio view</div><div class="cap-text">See all projects and programs in one place — with filtering, search, and navigation designed for portfolio managers who need structured visibility across large program portfolios.</div></div>
+        </div>
+        <div class="cap-item">
+          <div class="cap-sym">∑</div>
+          <div><div class="cap-title">At-a-glance project overview</div><div class="cap-text">Access each project's description, financial status, and key performance indicators from the portfolio home — without opening full project management screens.</div></div>
+        </div>
+        <div class="cap-item">
+          <div class="cap-sym">⟁</div>
+          <div><div class="cap-title">Cross-project consistency</div><div class="cap-text">Maintain consistency across projects for shared themes like gender, climate, or governance — with portfolio-level oversight that doesn't require manual consolidation from each project team.</div></div>
+        </div>
+        <div class="cap-item">
+          <div class="cap-sym">⊕</div>
+          <div><div class="cap-title">Portfolio-level dashboards</div><div class="cap-text">View consolidated performance across all projects — by sector, location, or financing source — with dashboards that bring together reporting from across the portfolio.</div></div>
+        </div>
+      </div>
+      <div class="cap-right">
+        <div class="filter-demo">
+          <div class="fd-title">Filter &amp; search</div>
+          <div class="fd-filter">
+            <div class="fd-label">Status</div>
+            <div class="fd-pills">
+              <span class="fd-pill sel">Active</span>
+              <span class="fd-pill">Completed</span>
+              <span class="fd-pill">Suspended</span>
+            </div>
+          </div>
+          <div class="fd-filter">
+            <div class="fd-label">Sector</div>
+            <div class="fd-pills">
+              <span class="fd-pill sel">WASH</span>
+              <span class="fd-pill">Health</span>
+              <span class="fd-pill">Education</span>
+              <span class="fd-pill">Agriculture</span>
+            </div>
+          </div>
+          <div class="fd-filter">
+            <div class="fd-label">Financing source</div>
+            <div class="fd-pills">
+              <span class="fd-pill">USAID</span>
+              <span class="fd-pill sel">World Bank</span>
+              <span class="fd-pill">EU</span>
+            </div>
+          </div>
+        </div>
+        <div class="stat-cards">
+          <div class="stat-card"><div class="stat-n">45</div><div class="stat-l">Active projects</div></div>
+          <div class="stat-card"><div class="stat-n">$50M+</div><div class="stat-l">Portfolio value</div></div>
+          <div class="stat-card"><div class="stat-n">30+</div><div class="stat-l">Countries</div></div>
+          <div class="stat-card"><div class="stat-n">5+</div><div class="stat-l">Continents</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHY — dark, side-by-side -->
+<section id="why">
+  <div class="why-inner">
+    <div class="why-l fu">
+      <div class="eye"><span class="eye-line"></span>Why it matters</div>
+      <h2>Built for portfolio complexity,<br><em>not just single-project tracking.</em></h2>
+      <p>DELTA is designed for organizations that need to manage more than one project at a time and require structured oversight across initiatives, teams, and stakeholders.</p>
+    </div>
+    <div class="why-cards fu">
+      <div class="wc">
+        <span class="wc-sym">⊞</span>
+        <div><div class="wc-title">Visibility without manual consolidation</div><div class="wc-text">Portfolio-level information stays current without requiring teams to manually compile and submit updates across projects.</div></div>
+      </div>
+      <div class="wc">
+        <span class="wc-sym">⟁</span>
+        <div><div class="wc-title">Consistency across projects</div><div class="wc-text">Shared program themes and priorities remain visible and consistent across all projects — supporting more coherent oversight and reporting.</div></div>
+      </div>
+      <div class="wc">
+        <span class="wc-sym">⌖</span>
+        <div><div class="wc-title">Designed to scale</div><div class="wc-text">Whether you manage a handful of projects or a large multi-country program, the environment stays structured and the oversight stays consistent.</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- USE CASES -->
+<section id="usecases">
+  <div class="uc-inner">
+    <div class="fu">
+      <div class="eye"><span class="eye-line"></span>Use cases</div>
+      <h2>For every organization<br><em>managing more than one project.</em></h2>
+    </div>
+    <div class="uc-grid">
+      <div class="uc-card fu">
+        <div class="uc-ab">NGO</div>
+        <div class="uc-title">Multi-country NGOs</div>
+        <p class="uc-text">Track every country program from headquarters — financial disbursement, indicator progress, and field data — without chasing Excel updates from field offices.</p>
+      </div>
+      <div class="uc-card fu">
+        <div class="uc-ab">GOV</div>
+        <div class="uc-title">Government agencies &amp; ministries</div>
+        <p class="uc-text">Oversee all programs within a sector from a single portfolio — with consolidated dashboards, financial oversight, and cross-cutting indicators aligned to national frameworks.</p>
+      </div>
+      <div class="uc-card fu">
+        <div class="uc-ab">PMU</div>
+        <div class="uc-title">Project Management Units</div>
+        <p class="uc-text">Manage donor-funded programs across multiple projects in one structured environment — with the reporting structure and financial granularity institutional funders expect.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq">
+  <div class="faq-inner">
+    <div class="faq-hd fu">
+      <div class="eye" style="justify-content:center"><span class="eye-line"></span>FAQ</div>
+      <h2>Common questions</h2>
+    </div>
+    <div class="faq-item fu"><button class="faq-q">Is there a limit on the number of projects in a portfolio?<span class="faq-ic">+</span></button><div class="faq-a"><p>DELTA is designed to support organizations managing programs at scale — from a handful of projects to large multi-country portfolios. There is no fixed limit on the number of projects or programs the system can accommodate.</p></div></div>
+    <div class="faq-item fu"><button class="faq-q">What are cross-cutting activities and indicators?<span class="faq-ic">+</span></button><div class="faq-a"><p>DELTA supports portfolio-level visibility on shared program themes — such as gender, climate, or governance — that span multiple projects. This helps portfolio managers maintain consistent oversight without requiring manual consolidation from each project team.</p></div></div>
+    <div class="faq-item fu"><button class="faq-q">Can we structure sub-portfolios within a portfolio?<span class="faq-ic">+</span></button><div class="faq-a"><p>Yes. DELTA is designed to accommodate complex program structures — including organizations that need to manage programs across regions, sectors, or funding streams within a structured hierarchy.</p></div></div>
+    <div class="faq-item fu"><button class="faq-q">What financial information is visible at portfolio level?<span class="faq-ic">+</span></button><div class="faq-a"><p>Key financial indicators and disbursement status are accessible at the portfolio level — without requiring users to navigate into individual project management screens. Portfolio dashboards can also consolidate financial data across programs.</p></div></div>
+  </div>
+</section>
+
+<!-- FEAT NAV -->
+<section id="featnav">
+  <div class="fn-inner">
+    <div class="fn-label">Explore other features</div>
+    <div class="fn-grid">
+      <a href="activities.html" class="fn-card"><div class="fn-ab">ACT</div><div class="fn-name">Activity Management</div><div class="fn-sub">Implementation tracking</div></a>
+      <a href="indicators.html" class="fn-card"><div class="fn-ab">IND</div><div class="fn-name">Indicators &amp; Results</div><div class="fn-sub">Logframes &amp; KPIs</div></a>
+      <a href="data-collection.html" class="fn-card"><div class="fn-ab">DATA</div><div class="fn-name">Data Collection</div><div class="fn-sub">Field-first</div></a>
+      <a href="dashboards.html" class="fn-card"><div class="fn-ab">DASH</div><div class="fn-name">Dashboards &amp; Reporting</div><div class="fn-sub">Decision-ready</div></a>
+      <a href="gis.html" class="fn-card"><div class="fn-ab">GIS</div><div class="fn-name">Geospatial (GIS)</div><div class="fn-sub">Map your impact</div></a>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section id="cta">
+  <div class="cta-inner fu">
+    <div class="cta-eye"><span style="width:14px;height:2px;background:var(--lime);display:inline-block;border-radius:1px"></span>See it in action</div>
+    <h2>See how DELTA supports<br><em>portfolio-level oversight.</em></h2>
+    <p class="cta-sub">Book a demo and we'll walk through how DELTA helps organizations maintain structured visibility across multiple projects and programs.</p>
+    <div class="cta-actions">
+      <a href="#" class="btn-white">Request a Demo →</a>
+      <a href="index.html#features" class="btn-ol">← All Features</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div>
+        <a href="index.html" class="nav-logo"><div class="nav-logo-mark" style="background:transparent;padding:0;width:auto;height:auto"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPUAAABNCAYAAAB+KCJ9AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAACNnSURBVHhe7V0HlBVF1vYoYMacdTHrmsO6hjWDurqmdV2JM0gOksOAJIlDHnJGHDIICChJgggGMpgVRTEiroqK2dX//ve7VfVedb/qfv1mhrPz5nSdc+f2rdz9+quvbnV1z34H1OxLkP21ju3Yju3stvfbv0Y+7V+DI22NTK74OF3pON0dH6cr/T9O3w8ZbKTHOtaxzm7NTK0OYh3rWJcNnfCpY4kllrIhMVPHOtZlTMer37Ed22XMloWyWGKJpeyIZup+GuWxjnWss10HM7WZowdJnO6ONxKnu+ONxOnueCPFSI+ZOtaxLmM6i31qvbMmUNKlxxJL2RRmakZ3LSDcoY2UmnQ9GrEu50w3gnxGfOm2NhKnx+llKH0fMjWY0ojfDpMIeWX/K6QvHdmwB53ZppPIEQ16WPm4HvE7jK3jYomljIuXqY0U2waTWgLmZCDatp1+AAMuaaMOtpHflNH5y3M8RNlI70vVxtehFbuuEvnnqPoqn5WOOkz9wf2N7dguO7Z+oaOfIBzT1ZKxWdfoI8BKAgo6aZt0aADen99OL8+dFiBLXo5nsCrdhx4a93AS1CPr0wHVUQ7tcTmpS9UnAwvqlbSSPt/Yju3SY6f61Eb88RmlgykVkBTAksAyIsxtaZNP8mq7fA6DWdiaRbRVl46/oU9z6rH8PpZ76ZpeLTRLq/TyolkQx3ayfyyh/bfsOD1Oz7L0AJ9aIT9Y0qUnAeoWb7qwtdFybKWbOBHY+XRys250++AmLI3pvLw8zocyKk8C/NByrOtA/bpvxT+/ON0dbyROd8cb2bfp4avfRdYaVIY1GVCijW1pAapJZ52YarOtmFrFG4BC39K/WWLK3XhmjURZKc/pUgeXM0yNehAXvf+xjnX2ap9PXXJagMqNCEA1cAVYAj7kUaxr2yZfig0tLMzxfHxzPxvU1ZPpnFcxNPIp1lbx3K6wdfT+xzrW2ar3E3QXW7hC1uXArNDCtAwu1omVaBY5hkg+fWyJANgfz51U5ZPHZ7TuRLlP5FJuYW26qnvrxKp4YmFMgMx5BdSwdXm0qyX1HFLl8LqD6foeU6ne+MVppdbop+lfQ5+iyvkz6MK8CXTyIyOcdWYqpzUfSdVHLnS2mYmgX8c0HOJsw5YHhszzlKvBbZ/deowzbzo5+OGB9CBfE7u+4krumGfo1GYjne2FCX6PHP6N/PVd1bWQDqw9wFkmW6UEmJqBY9nwh49v3I0u79ySjmvYTYFK0gA6aM24CTuZjrzKr0acAqMBpc3UCc3lLu/ampoyW1/ZrQ1PvRFvMTTrExoWUG3+MY+qP4jzh51Hqj6l6Qjq//Q6+vir79LKjt3f0Juffknr3vuMnt7yHk154XXqNOt5ur9gLh3dYEik9ly6cp8ZtHXnbmebmcio5Vvo3DZj07b3/Fsfecpt2fk53dl/dtpyLn1C42G05u2PPfUVV177+D/0t+5TI7Vv9OF1BlPNUQvpg/98m1LfmBVb6ZzW6a9LNuliMbWX8frTAWL3pfPbt6dH591LDSZVo4s6tKVDH+4tABYfV0QBVeKEjTEwcJw+TmgR+9gWxPelquPryjS82sQ6Eq/ayOc2B9DtzE4TV2+jHV98Q2e0GMn1JvsrU3LLdsmfmo+i8c9to6KE//s/om9//IVe55tw7KqtdGPPac420gkGhc+//UHXWvQw/aU36fx245xt2IJrZYdd33xP9w2e68ybTsCo736+R9dUMuGL736kW3mgc7UXJJVajJJB1hXe271HZhOuctkqzNTqQLQgPboN8BkbaSb9grz2NGRlFSpc/zfKX3IHVR+dw6NhHh1Su7dmWMXAYFYD0iQjG4Bz/douVwtxCsSiuV3RXL5Sq05UZVBTOr3Vo1SuOuLy6bpuk2nQog20eccu+vm3/8qPd1bL0cl+ov9gddhaXOf3p2YM6lVFA7Ud0IcXt39CbaetoqOYtYPac9kAVImA+kUGddtxadvDjMMOBtRB+cPsUx/Zd6CO0j7sckw2YHachyv8+t/fqfeCl9g1GRqpvmywNVMzy4o2Es1WvnFq+oV5eVSwsjLN3nq1yOMv30DdF95N/xjcQKbkBsjKD1ZgNQwr8agbxwC0gFoBWfnK+XRJl/bUZ9U9dL/eQSbC+U5jv6n99FX08ruf0nc//SJsacJZHr9Q91+OAW73+QUx9Uc8bQMD+wXgs9u0wx+cgHJdnlxDR+MGcrTnsl1MvffnX2nmy29a8lZau3nhcjol4ecHt+dm6nlWXm/+MBs+fMGSjc7+QM/ftJ2++v4n3ZIKmN2s5Sm7Kz9kHA+yF+VNdLbnso+sXyCDaVhYvG0HXdF5krN8NtqKqTXCM9PJOTzAsT8q1OkXdmhPBSuqJEANmbHpGhq79ibq8tTdPBVtyn5OTwaiBmR1L1Mrzb414lmUD66ACxY3q9+t5lWV+GP55qk95hlawj/ObgbA73/8oX+uZDirJYOa80r/0V9dZ/D5BTN13ozn6IpOk1Lk2m5T6O6Bc6jbnLW08vWdOncyANhgrgYTloS2a2sXU+9k3/DMVmPoLJao+oQmw+mg3AFp24vE1BF1hZz+dBpfw6B+Xd11Mr3y0Re6JRVwfRpNXOrMD12pxWh2rQZFah/6dM7v+i3sAPbHAtyBEa5PNugSWP1WoFbHasS4sEM7nn5rpt5iCcC9+Roas+Ymajy5Kp3TJo8OzlEbQ+BbC6ABXgGwWujC1DsBfhYw+lENe9KfO3agSi270409prC/+AZ9tmcv/fZ7KphNOKvV6EQ/lT/d32Jq03+vBDH1Q8PnO/NDKuT2F4Y6j6e67Rn8uGHs8F/u47OvfUCX8yDgKu8XF1PDD3TlLQkpSZ86nWDmsOn9XbolFbDY+M8C/8ygaILfAlP1H3/9Tdeurj9mOr/wtNsEDLb5C1+m4xsPc9aTbZLYfCJIR2QGNkAhwECcSWcAKlBrprYAbR9P2XAdjV5zM9UYXYtH30epAoNLpuACbM3QGsTC2jpe4ridCxg0o5Zv5ptwD/2k/eawcFbLUdI/A2iwtP98/LaA2sHUAHWU63M0g7va8AX0wy/Jmwrh6+9/pq7M5unKQ9/vYGqAOkr7RbFDmTpC+UxsJ6g/UaAuifqxftFj3ou6ZhWw4o1Fs+ff+ljHqLBl5266uff0YrVXWmyfT52pVlKuJttcmWE+mX4D1AbEFpj99pSN19HA5bfRHf0a0cG1sUpuwMsidScZGoA8rtEQemTSMnr7s68EzEE+rD+cbRbK9MwCdWERxT4P//kFM/UCZ36XPqHJMBq9YqsuqQL6vHDLu3R267Ep+f06nKmDyxVVh/vU0euJok95ZGQAU5vV6Gj1BOnT+TfHtbID1luwn2DMSu9vAvauPWYRHSTPrKPVX1q1d/U7U82S8KkT8YqpPT61DWg7TtuztlxD05i5C5ZXpssebS2ABjNXwKo3MzaAftjDA5m1nqT1731GP/PUKSqYTThTQG351Kyl3zUc56V1FKZOpyFYhPmebxo7YFDCxo505V0+tc3UJa3TMXVJajD1Rh+o3/AxdVH1QbUHyqYd+z756df/yvN6bDapygPzzi+/1SlqoJ289vXEQBu1ndKoi8zU6hk1RjUwqIoH8wEoF+ZZ028fgKGfNPG26HgAvNnUf9OJTbrKNBvT8vPajqWZ7DebH+j5dz6lG/vOpcHLvKNtWDDTbzXtRj+5z9Jv26f2nmdJMDX0aVzPk+vf1qVVADNgapiufMzURdNwfeZueEfXqsLHX+2lppOelfRrH5tCq974UKeo8BYPtGo/QfR2SqMu3uYTaIAE4DAbUXikEKY2028NWBeIPfF2Xhaslt9X0JgaTVhMe3/ystza7Z9RlYFP0dDlqYALCmcan1r6zv3FyKan9PY52VKUhTKXHNtoKPWa/5IunQyo+7C6g5xljASBGlswowoWjFx1u6SsLJSh7k/37NW1qoC9AtjCi/RD+Lr0mPdCyowPoMf2YH992SQMavzgRRRhOqXL5bBmAQPCp/YwtR+4QXHW8cwt11LzqTk0dMlGfblTA1Ywv/7hZxGzySQo4HGImVGoGQb3FbbpuzknSxSoX9E1JINiancZlxxaZ7D4a/4wa91bwuKuMkbu5xvcD+pvfvyFZq97O7LUGPk038QYPNxt2BLM1O78xZFwpnaXiSIH8tQb4LQDVsDHsitl58P0/H3f+S7Y/C79uR2A760zmyTB1GZOnomdZGq2TRofu55TBwoD2TMdB7BZZm6+hppPqUXDlqzXlzs1zN/yPl2fP0dk2jrvVMsfzmzFPrWAmPvIs4r9a+hj6be1M04L7DCmjnJ9zDHYEosz/vDUpu10ThuvD2fE2C6mzjQMWLSejqhX4KzfbwcxdVD+4thhTF2c+rHq7V/dxqp348eXefLjseKirTt0DhXgd9814Enlnum8Jn+22MVjai3lajLzabbDxbjAXv32A9YCrse28sximcm+dTqmzgTUapso+sgnjr6CoYW59z1TH8ws+eDQ+bp0MihQYz+2uxzExdSZBoD6yPrYnupuw5ZsZ2r8ltewv2wHTLHxos15bcd78uJ36bPg5ZT9DVjrOE6eWXvrzhZJs1BmJDVdtohidBCmtl9dwwsdHajf0tudgE1oI/40FoAam1RaTa9Fo5dv0Zc6NcC3bjpltcjyNz7SsakBK8/mhQ7lU9v9tcV7nukXytzlkloJbh6stvpDkqmDy7uYGhsosOU0qnSevYaOqA+mdvfPjs9socyIPz5aejBT+1+wcJd3peO+fGzuC7o2FbBPAC/VuMrXHPV0ymMvvKl2EfveyReW/OWS5UtjumJqP1NFtf1MJyDvT8c3eYweGpVL/ZfdTk+s+5sTuCli0rTG9LvLgqo0d30qA8OHXv/+57Tzy+90jDtgge3Vj76g0Su20HGN1IZ9M63C7MKsgJeThSRL9PlEZuo01+uweoOp/oQlunQyYEUcz1LDyruYGlthc9lHjyp/6Vooj3hc9fttJ6hl4cqdvzh2IFMP8TF1BvVXZDcDj8Xs8CHfJ9VGLHTmv6Tj4/KqLHaVmYD1GcysEusQGbRfGuxiMbUCicmTBAyAclDt3nR+u/aUO74G5S/5Oz3x8vVeEBthEIOZBcxGOB6g7rTgIQa191EQwuq3P5Ep96Blbhb/jsG8+YPPadjSTXRzz6l0aG0GsGxosftpn2Pq+UGXFFPjBY6uc9bo0irgJgJ7VGTAh5UPf6RlJLh8punZztR499sfcL2wKHZL7xks0y09ne7oN0sGV8x+7IANQyc1HZ5Sv1cbKV3pxWJqMDQAYoNZ5eFjvDBRI58Oye1FF7ZvR7XH16QBzNxTN1yXAmoDZFsD1J2ZqedtSAX127v2UP6iTbTsde9zRoB5w47PqGDxBrql13SqWGeggFk9Szc7yZL9Rz9lUJJplolLppcUU/+pxShZVbUDnlN3n/eCM79tu5hagdqdv7h2tjO1/zojYPELm30Ssss6ZsHMzx/A7pc9OknNQjNovzTY1kKZ78aOYJuFJgVmpCuReNmrbbZ35lPFuj3pL11aUv1J1Wjgs7fRtI0MbhvQWgxrhzG1P/zy2+/yhY4Bz6yjyn2m05F49gtm1i+CwO9X20+5f3wBwpk6mRYO6tT8Lrt8zgA+70JZfbUDNjp4poQB5YNBHa39TO30TO3NXxw7fKEs8/rweBD76ksq1Bm3WB5HBrVXWm0BtfGJM9Z6U0My3lSsWLo83rASULMwwOQNq/o96K9dW1Czaf+iCS/dkDr11qKYmkHtYGo74L3peRveobt42nVUg8HSVgXTphEwNdrXfS2PhTIeeGSxj+2U89IaX8xwgRqLXq78fl2er8/JfONia6I/LHnlfTq/vVqNDavHBeodmqnDyhVVu0CNPkQtn4nGl1FcoH5AM3XUeoxuVrhc11IyYQ7fVyc1HRG5/dKi0/jU6TSEAcxsJMeyUAZmBFsbQOMdaKUhFWr1oZNaPEr3jq9F3VZVoRHrr6cpm65R4NZTbxwbUM/b8Ja+xO4AUE9kv/fKTo/TIQnfGW2qdoWxpX2AW/c5MbMI1+l96vDyeCyCKTam2nbYw9M9fG3jsMTOpeB64m2i0fUK33vTWPDCN9LmbdzO8k6oXsqDrP8649zx5hY2s0Rpv7Ror09dDC1TWrHBfhrUmrEPkM8R5dPh9XrQxd1b0ANTqtIjy/5OrZ+rQh2fv5V6v3ATjVh3PU1lINugxvTb5VP7w5ff/UgLN2+Xr0WeyEAS8AqgFZCFqXGcq5jZ9DPhS1vnYWv4wqE+dUC5w+sV0O19Z9GwZZtTbhR8PgfvU/+16+TA8rYO9akjlM9Uh/rUEcpnok8JYOqETx2xHuir+Hr6v6KC6/aPgXPoog4T5WspYfrKzoWyCv77H959o/jgRUXzODBCP0qDtnzqoghAoQXTWWFAABygVkACsCrk5FOltnlUZVRtqrPgHmq18nZqw4AGqI10XH0r9Vp7Mw3X4Fag/nfa6bcJv7JfjUUPvGN9TddCOrg2+oMptwY0tO6n9F2m30q855SUIJ8amznAJn6pN34J9XjqRZrx0puy+u5/jxoBfcT0Peq2zSBQX8g3YyYiXwxJ+IfB4gc1Hp9hmym+nBJV8FzeVbdfwpnaXSZI+j69zgNIrGavfONDOryueT6fXvBRC/+13vbhbjqxCT4D5S5TGmU/oLscps/mBs/UZr+xHHxUbUPKc8WGIY9u0o2u7t+Eqs/6FzV79o4EmD16VWUWaID7Fuqx9iYayv52h/npfWp/2PvzL/J6ZttpK+nkJmBt5ctjcBGfGn2LeH5BPvUnX+/lm+8reovF1vjMEPZluwIeYcEXbjV1pfpGmaM9l33/kFRQYzMNppWZCDZknKGfiYe15wc19tdvev9zWQOIKtjRFVS/bYf61I78QfYJDDpcf/vlDFwjXOso5Y19Q89pMhjbAbvNquTPogpw7Xz5S6tdTKbWgspYm8dbAPRBuX3ojLz2dO+k6tR48V0M4NsEwDZDe2yA2tJ5z1WmurNrRpp+uwKmjXi8cVPPqXQwBh4Btuqfml3oPuu+uySIqTMNYA3cLNjQcHxjPPt0t+cSF1MXJahPBHu3SbrED+qihHsG4a0ud/22lBRT39Fvdsq6xZd7f9LvRrvLuOSI+kPEv/ZPwYc/uznSLKe0SChTGwlOZ+YDYNhGmkxvWR/VpAddX1CPcubdR81X3J4CYhvYALHfVvo2qjkzJ+Wd2EzCrwwmPJMcwFMzfDMMH8KTfqL/fPL+8/HbQT511ADmACAHL95IF3d8XC2MWfUbCWof4mLqogQBNVbbffXbNtovCVDfi1c1A+q37SCf2jC1kaDyRia/8Lpn/zZACf8Y7GrnDypvp7ebnjoFxzPrU3mAj1K+NKS7mRqJrngjgenKvz7z0XbUdCkWwhQ7JwBricRrQBuRNA3qVhrURWVqO3z70y88/VxLh5nRFhcAvrXxr/2izy9TpsaU77M939Nzb35I/Z9ZTw+PXSQLMSnsnMH13SdMHdJ+iTC1vH/trl9Etx9584lfrP7jkRP6bE+9seqNdQBPGVtCzh+ug/8LpxgksN0Wew4kX0h5kf9xuo+pocG6th2envBRocW3HkDndW7nAW8CsJbYIJZjgDnB0pDbqNbMXJq7sfigRhi+bBMdiQ/pc//kOTUPPt7zSj2/gx4eRCfyTXNu2/Es47Q2YuykPrvNODqTp3ynNhtFRzcaysxcEFq/W3vTsfJ6Vmu0kb79sPSTHhmhFrB89fv1Ga3GOsunq99Or1gP19ldv90+HhVVYj/fLn96yzEyDY5SHvrAhwfy9UGfk+2fw4InEFHK+/XBPPCjD/7zOqrhkEjlS0N6sXxqtRim/VPNemDAczu19QLXIQbsrjyIa7nyNrplaFPKX5D6xZCiBOwDr1h/sBqE0FdcADmPpH8dSyxlQRxMnYHOhVYryokRJLcfndtZgTpMwgCdO/d+Oj2vLU938unwOgOpSp9ptG3nbg3PooVhyzZSxQY8enNfZUYBjf4aHeV8Yx3rLNBF3nwCp1xNvXWclX5ul1SmFhCv9tqJeH3cdOkddFXfxvoRlNoJJrvUauTT8Tyd7T5nrTw3tf2nqGH4UgY1M7XMKMymE7C0bVvnF+tYZ6veD+hWCFc6I5sZT4E7mQ59rvapbeBC+48hWBDDCvn9hdXpxGad5euh2LuNZ8oAt3ohhMFdo5/8J8ube06XxTO8eeN78hAasLurIvtqif6yYOFDBHvYdf8957cP7PI8u4GUVH2lwcb5YNYWlJ6NNs6nQu7AwPTSbBeZqZXmSqD1dFZtROHpd5c2KeBNEYB5+e2UM/c+Oq9zazowtzeDl9kZ20rNFlPW5fG2FzaQIF7S8P+GB1K14fPplQ930w+//hYJ3GDqw+vBp2ZWRv/NhXCeV1Lj4wLHm51SdZIvzWMxB49k8Pwy8ZGFgHpw0+NzQme3GSvbGaFhC7hDykHje1toRy1yqXg8arNtl8Yi1DE8uzGLTkH5KnAfUD9W+lEv9GkR6sfgiEU8/I+rK7sUyso6FpNQX1g5aCxumfbwZhX2yMv+6jTljuV8+O+U8qgqJN+hdQfLYqX5vdAe2sDHKsLKQWOQx3XDp4+ufmyK7MRTi27u/KVRs0/tRXpUnTIyg7U1uNP51C2YmesuuIduHFqfjmjQndmZ/XKeZie2dOJdbM3SRiuB/w6AI18+ndt6DOUveJm27/paXr8MC2qhzFqNFqbGjaT7b+ITttKXdnqCFm55Tz4ve3PvGXLeuAG7z3tRNjjcO3ieb1XZq5EfN+4Qbv+DL76RLZ54ZNJn4TpZ1Q4qZ3TP+S/JYzK0g9V4xGMzy429uC9WPr/+c/sJ8jiu/YzVoflOemQkrX7rI/mqJna9QePLIX/hwSesHJ7bdn5yrZwLymBH14hnt8jzeAVQdzlo5MFjInxqafvne2TDx1+7TQnMb/SUF96gUSu2CtCC8uF6Y/MLdvbhRZTyzLaXdJwkG5FqjX4msJzR6NsTa16Tfqnz+lKu4WGJ1fTw8qVBy0IZDoqsAUgDDowWGtQupm7J7Nxw0T/ovsIaVKlde2ZnzcIAcw5e/FAg3p8ZGe8/40MLyq9mrdNEBPQo24+OqDuI7h34pEzJd3/7I/0RQNvDl4GpAWowNS4A+q/ZISGp53dpp0kCauzj7jR7jbDRBXkT5Vk0bkxstFBgc5cHa+SMWaT+88SQp4Rt8IIE3igCKA5iFnGVMxqgxj/Z27pztzyqQbwC9XRPPr8GqMcJqJ9zpvs1PquEczynrRpowvLjfBtPWia75BpMXMozmRF0a/5MviYfUb9n1jHzj3KWMxrAwZtqYMIrOj8hz9Cxaysov9EK1FuY4fUnoBz5MGu6m0GNa7T2nU/kfC7WoK4poHaXgz60boG0gT3jd/Sfzew+nBo+vlQ++o9ZRVC50qYTPnVRRfZ5MziUcKUAdRfvc2r4zU2W3ElVZzxIl3Rvzhevl/KZGWBJ31kBXESD2bC2OQZTS35uQ8pwXqXxWdgCal74LK179xN5W8cP7mHLmKkx2qKs7xzEz06JU3KZZmqM2ni/FvuA8dIG/mcyFu3ABmBqV1kIbnCUG8pMbeKOajCUusxZS7PXvy2sY+f3C/4JAP7/04Ydu+S9bEynccPepJk6SPxMnU7OaDlGg3q8M90WzDzAymNXbqMj+VxMPHZjTX3xDblmdn6/ANRgUmzvhDy5/h35qqcrry0AHD4zFHbN4NKAqfGd7wl8/vj/2Nd1n5pgalcZI5c+Oole4mst30lntwrXBJtRsAEIz6pl7cBRrrSJ9qkVGD2IF5slNJ0rsdNF+tF5evUbgql2zrx/0vUFDeiEFl3Y58I/jgdIAWLFxgn2zWGR1zQxzeZ05AOouU5VBqvVYHSkY8VagV2OUQfri/MmUN+FL9OrH/3H8+9Kh8GnllfoFFNL39OeX3/5oQFq/LNzAHncc9tkJMfH4vEGT4KpA8rDt1u0bQf15pvWpCN/i8kraO7Gd8QnTeZPLd/zqZeE1f/OzIF/bP/gsPmKqXuCqTmPKecrjw/So68Jpg6o38SnMLUv3S5/GoMKoB7Bg4y8babTHylcLv+gAD52WHmAGru+cD0xYIHhL+4wMZGezO8t72FqRzq0YWrMbi7nWcDy13ZSL772z2x9z8vUjvJwtdAfvK6Je6PayIU06fnXZEDH7kBM5cPKiy4F6cVa/TaMJ74pfGrYDJrzePrdauVtVO/pe+jOcTl0dsd2fCP3SbKrYWQBqgKlAilYuK/ysXEMZmapwB1GfqVZUIY7D4ZW7I44BXzEHcOs/UDBXJq85lXaxWwK1saOMvjUsmIP359/IPRbnYO6IP7zgzZMnTdzNU85n6X32NeCz3Vdj2nyz90MUweVP46ncGBp1GF2Ol3RuVDqAJMg3c7vLw+mBqhPaDqC2kxbxQPJFx6f2p/fSJBPbcRvYxeVzdRh+TFbACvPZ/a7gQcX7JyrxOXxnySxdoAdXmHlDVPjvfRCvg74VPKx+jq48hvbZuqg+g1TY2stdrbVn7CU3tn1tby5ZzO1qzx2D2LPeMdZz8uawTGNhslHCj/+eq8MWNmyGi4LZUoM0oti42QxheU4Blil9h3pgSnV6NJezfkm7qGBp6fXslkFohnXANuAW0DMmllbgC15NZBrAtSwVTlJYy2jlF23ru8YBnHrqSto2Svv02Nz18hiB/orF4F//MRAJI+03OdnFsoAatz4AAn8R2xvBKiTC1ju8kirzFN2vJKIf/uCeiasfpUWM3s/NHxhSn6/DZ9agXq49B8A8PrU3vxGkj71ame6304yNfz21HS/DX8YA9MkFrQBn3jxtvdl3ze2WoaVB6jhImGh8M4Bc2S9oOqIBVZeb35jK6be6vOpk+nQWCgDUwPUsE/mmdJEvt7bP/9aM7U3v99u9Pgy+a3wzjwG0dE8UIH1AWrF1OHlS4NdTJ9ajVzyrNcAhCs/vEFvOqklpto2MI0AmJaAjVmLcFnkBSOrY9Rray3SnjpOqU9EtVUegwDLZR0n0rXdJsvjKTX4qD4nz0PFuQT+I0b7ygxkOx5+cWv+0XGDYrXXTvMLmAwjfv7CdXKD9Xt6Hd3FNzOYxJXfFkwFm/AMAewIG+4A3vrCPnN/XltOajqSqvKg4e93kBzLrISXUPBusivdL3iUd+1jU+Wf52NGgNkIFgLBbq78tmCdAT408uJll2aFK+TNLFdeW3IYlP8etiBtGxd1eFzcFhzjt8HqNwZTfADSn9cvWCOoO26J7GvAzANgxoImZiTZ41PzHz/So9pmGivapDOoVHo/2p/j5H9sQYvofMgj8chvOqOAJfUiT2KVGnG6nD42+U151abKvz8fQ1QbyeNEfjA0jhEPOyH73j6QWfuohkNDmT3bbJzTEQyEQ/BM2JGerTaecWM1HMzvSi/NdvGYOgFIv20aUBpxCkzJdIgwLdsJ35bzgKGFbXVe7PaSNF13ymjJ8Yp1NXANyI1wGvphlzEsbdpXZZPpscSSzeLZfGIkms2A8QBVp9tAARBFVJyAS8BpwKdEbKShnAatsz19rAR1qHoATtW2nV+XkXRvfDLd2Lp8wvanx3ZsZ4+tmNqs6mWq4UsKKLXkque1WFAQUMPnBqh0/kS8YduUeGWHa28+sK7N9CoecaodxcqcXwYWXS6R36431rEuG9ryqYsjXqb0xHniEedlRZXmi0srnN8AmI9FW/UAtJIPq9qcT44lXcWrvEkdSyxlSXxMDUAUzVa+LgOMGVExp2LKRH4wpcmTiLfSi2qLaNsAXBiZxZ+fRVbp2VYa+dEfqz47f2zHdhbaHp+6aFoDQ2zFlOLjAtyGEXW80ipvUvvry1Sr9mFjSm3qTfrxOh4gFs3x0q9kOW99sY51duv9BN1AekJrQSZPfLp0BoltCzNb+aDhg0OQJ+P6o6YziFknfGazei7p7PMjDfGJOJPPaC1Fbj9Oj9P/t+nFWP0Osg0DJiVpu/LvK9vfXrIPRasvtmM7O2xmaj/yYzu2Yzub7RLwqWMd61iXJp1k6lhiiaVMSChTG4nT4/Q4PXvSY6aOJZYyJoqp+SDWsY512dAxU8cSS5mSgfT/GZiEdIoXIYEAAAAASUVORK5CYII=" alt="Delta Monitoring" style="height:32px;width:auto;display:block"></div></a>
+        <p class="footer-brand-text">The integrated M&amp;E platform for NGOs, governments, and development agencies. 30+ countries · 5 continents.</p>
+      </div>
+      <div><div class="footer-col-title">Features</div><ul class="footer-links">
+        <li><a href="portfolio.html">Portfolio Management</a></li>
+        <li><a href="activities.html">Activity Management</a></li>
+        <li><a href="indicators.html">Indicators &amp; Results</a></li>
+        <li><a href="data-collection.html">Data Collection</a></li>
+        <li><a href="dashboards.html">Dashboards &amp; Reporting</a></li>
+        <li><a href="gis.html">Geospatial (GIS)</a></li>
+      </ul></div>
+      <div><div class="footer-col-title">Solutions</div><ul class="footer-links">
+        <li><a href="#">NGOs</a></li>
+        <li><a href="#">Governments</a></li>
+        <li><a href="#">PMUs</a></li>
+        <li><a href="#">Donors</a></li>
+      </ul></div>
+      <div><div class="footer-col-title">Company</div><ul class="footer-links">
+        <li><a href="#">About DELTA</a></li>
+        <li><a href="#">Resources</a></li>
+        <li><a href="#">Book a Demo</a></li>
+        <li><a href="#">Contact</a></li>
+        <li><a href="#">Français</a></li>
+      </ul></div>
+    </div>
+    <div class="footer-bottom">
+      <span class="footer-legal">© 2026 DeltaGIS · DELTA Monitoring · All rights reserved · GDPR Compliant</span>
+      <div class="footer-lang"><a href="index.html" class="active">EN</a><a href="#">FR</a><a href="#">AR</a></div>
+    </div>
+  </div>
+</footer>
+
+<script>
+window.addEventListener('scroll',()=>{document.getElementById('nav').classList.toggle('light',window.scrollY>60);},{passive:true});
+const obs=new IntersectionObserver(e=>e.forEach(x=>{if(x.isIntersecting){x.target.classList.add('in');obs.unobserve(x.target);}}),{threshold:.06,rootMargin:'0px 0px -32px 0px'});
+document.querySelectorAll('.fu').forEach(el=>obs.observe(el));
+
+window.switchView=function(v,btn){
+  document.querySelectorAll('.vtab').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.view-panel').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('vp-'+v).classList.add('active');
+};
+
+document.querySelectorAll('.faq-q').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    const item=btn.parentElement,was=item.classList.contains('open');
+    document.querySelectorAll('.faq-item').forEach(i=>i.classList.remove('open'));
+    if(!was)item.classList.add('open');
+  });
+});
+</script>
+</body>
+</html>
