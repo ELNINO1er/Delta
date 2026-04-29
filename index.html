@@ -34,13 +34,13 @@
 html{scroll-behavior:smooth}
 body{font-family:var(--font-b);background:var(--white);color:var(--ink);-webkit-font-smoothing:antialiased;overflow-x:hidden}
 
-.nav-dd{position:relative}
+.nav-dd{position:relative;z-index:20}
 .nav-dd-trigger{display:flex;align-items:center;gap:4px;cursor:pointer}
 .nav-dd-trigger::after{content:'';width:6px;height:6px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:rotate(45deg) translateY(-2px);display:inline-block;opacity:.4;transition:transform .2s}
-.nav-dd:hover .nav-dd-trigger::after{transform:rotate(-135deg) translateY(-2px)}
-.nav-dd-panel{position:absolute;top:100%;left:-12px;min-width:270px;background:#fff;border:1px solid var(--border);border-radius:12px;box-shadow:0 16px 48px rgba(0,56,101,.12);padding-top:14px;opacity:0;pointer-events:none;transform:translateY(0);transition:opacity .22s,visibility .22s;visibility:hidden}
+.nav-dd:hover .nav-dd-trigger::after,.nav-dd:focus-within .nav-dd-trigger::after,.nav-dd.open .nav-dd-trigger::after{transform:rotate(-135deg) translateY(-2px)}
+.nav-dd-panel{position:absolute;top:100%;left:-12px;min-width:270px;background:#fff;border:1px solid var(--border);border-radius:12px;box-shadow:0 16px 48px rgba(0,56,101,.12);padding-top:14px;opacity:0;pointer-events:none;transform:translateY(0);transition:opacity .22s,visibility .22s;visibility:hidden;z-index:30}
 .nav-dd-panel-inner{background:#fff;border:1px solid var(--border);border-radius:12px;box-shadow:0 16px 48px rgba(0,56,101,.12);padding:.5rem}
-.nav-dd:hover .nav-dd-panel{opacity:1;pointer-events:all;visibility:visible}
+.nav-dd:hover .nav-dd-panel,.nav-dd:focus-within .nav-dd-panel,.nav-dd.open .nav-dd-panel{opacity:1;pointer-events:all;visibility:visible}
 .ndrop-item{display:flex;align-items:center;gap:.7rem;padding:.6rem .85rem;border-radius:8px;text-decoration:none;color:var(--ink);transition:background .15s}
 .ndrop-item:hover{background:var(--bg-2)}
 .ndrop-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
@@ -622,6 +622,29 @@ footer{background:var(--ink);padding:56px 4vw 32px}
 </script>
 
 <script>
+const navDropdowns=document.querySelectorAll('.nav-dd');
+if(navDropdowns.length){
+  const closeNavDropdowns=(except=null)=>{
+    navDropdowns.forEach(dd=>{if(dd!==except)dd.classList.remove('open');});
+  };
+  navDropdowns.forEach(dd=>{
+    const trigger=dd.querySelector('.nav-dd-trigger');
+    if(!trigger)return;
+    trigger.addEventListener('click',e=>{
+      if(!window.matchMedia('(hover: none), (pointer: coarse)').matches)return;
+      e.preventDefault();
+      const willOpen=!dd.classList.contains('open');
+      closeNavDropdowns(dd);
+      dd.classList.toggle('open',willOpen);
+    });
+  });
+  document.addEventListener('click',e=>{
+    if(!e.target.closest('.nav-dd'))closeNavDropdowns();
+  });
+  document.addEventListener('keydown',e=>{
+    if(e.key==='Escape')closeNavDropdowns();
+  });
+}
 window.addEventListener('scroll',()=>{document.getElementById('nav').classList.toggle('scrolled',window.scrollY>40)},{passive:true});
 const ro=new IntersectionObserver(e=>e.forEach(x=>{if(x.isIntersecting){x.target.classList.add('vis');ro.unobserve(x.target);}}),{threshold:.08,rootMargin:'0px 0px -32px 0px'});
 document.querySelectorAll('.rev').forEach(el=>ro.observe(el));
@@ -657,4 +680,5 @@ document.querySelectorAll('.faq-q').forEach(btn=>{
 </script>
 </body>
 </html>
+
 
